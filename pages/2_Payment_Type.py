@@ -1,0 +1,64 @@
+import streamlit as st
+import pandas as pd
+import src.payment_type as controller
+
+st.title("💰 Payment Types")
+
+
+# search 
+search_term = st.text_input("🔍 Search Payment Type")
+data = controller.get_payment_types(search_term)
+
+
+st.write("### Payment Types")
+
+for idx, row in data.iterrows():
+    cols = st.columns([3, 1, 1])
+    cols[0].write(f"**{row['name']}**")
+
+    if cols[1].button("✏️ Edit", key=f"edit_{row['id']}"):
+        st.session_state["edit_id"] = row["id"]
+        st.session_state["edit_name"] = row["name"]
+
+    if cols[2].button("🗑️ Delete", key=f"delete_{row['id']}"):
+        controller.delete_payment_type(row["id"])
+        st.success("Deleted successfully.")
+        st.rerun()
+
+if data.shape[0] == 0:
+    st.write(" No data available 📭")
+
+
+# Edit Form
+if "edit_id" in st.session_state:
+    with st.form("edit_form"):
+        new_name = st.text_input("Name", st.session_state["edit_name"])
+        submitted = st.form_submit_button("Save")
+        if submitted:
+            success = controller.update_payment_type(st.session_state["edit_id"], new_name)
+            if success:
+                for key in ["edit_id", "edit_name"]:
+                    del st.session_state[key]
+                st.session_state["show_success"] = True
+                st.session_state["show_success_msg"] = "Updated successfully."
+                st.rerun()
+
+
+# Add New Form 
+with st.expander("➕ Add New Payment Type"):
+    with st.form("add_form"):
+        new_name = st.text_input("Name", max_chars=50)
+        submitted = st.form_submit_button("Add")
+        if submitted:
+            if new_name.strip():
+                success = controller.add_payment_type(new_name.strip())
+                if success:
+                    st.session_state["show_success"] = True
+                    st.session_state["show_success_msg"] = "Added successfully."
+                    st.rerun()
+            else:
+                st.warning("Name cannot be empty.")
+
+
+if "show_success" in st.session_state and st.session_state["show_success"]:
+    st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")

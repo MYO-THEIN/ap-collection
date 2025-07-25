@@ -1,0 +1,35 @@
+CUSTOMER
+-------------------
+customer_id
+serial_no
+name
+phone
+home_address
+delivery_address
+city
+state
+
+
+PAYMENT TYPE
+-------------------
+payment_type_id
+name
+
+
+STOCK CATEGORY
+-------------------
+stock_category_id
+name
+
+
+ORDER
+-------------------
+order_id
+date
+customer_id
+stock_category_id
+quantity
+amount
+delivery_address
+payment_type_id
+order_no
