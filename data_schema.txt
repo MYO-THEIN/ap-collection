@@ -1,25 +1,25 @@
+PAYMENT TYPE
+-------------------
+id
+name
+
+
+STOCK CATEGORY
+-------------------
+id
+name
+
+
 CUSTOMER
 -------------------
-customer_id
+id
 serial_no
 name
 phone
 home_address
 delivery_address
 city
-state
-
-
-PAYMENT TYPE
--------------------
-payment_type_id
-name
-
-
-STOCK CATEGORY
--------------------
-stock_category_id
-name
+state_region
 
 
 ORDER

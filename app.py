@@ -31,7 +31,7 @@ stock_category_pg = st.Page(
 # Customer
 customer_pg = st.Page(
     title="Customer",
-    icon="🧑‍🤝‍🧑",
+    icon="🧑",
     page="pages/4_Customer.py"
 )
 
@@ -69,7 +69,6 @@ pg = st.navigation({
         monthly_report_pg
     ]
 })
-
 pg.run()
 
 # PostgreSQL connection
