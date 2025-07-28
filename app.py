@@ -3,7 +3,8 @@ import src.utils as utils
 
 st.set_page_config(
     page_title="AP Collection",
-    page_icon="🌴"
+    page_icon="🌴",
+    layout="centered"
 )
 
 # About Us
@@ -17,8 +18,7 @@ about_us_pg = st.Page(
 payment_type_pg = st.Page(
     title="Payment Type",
     icon="💰",
-    page="pages/2_Payment_Type.py",
-    default=True
+    page="pages/2_Payment_Type.py"
 )
 
 # Stock Category

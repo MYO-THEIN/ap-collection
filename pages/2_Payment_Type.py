@@ -5,29 +5,28 @@ import src.payment_type as controller
 st.title("💰 Payment Types")
 
 
-# Search 
-search_term = st.text_input("🔍 Search Payment Type")
-data = controller.get_payment_types(search_term)
+# Search
+with st.spinner("Searching ..."):
+    search_term = st.text_input("🔍 Search Payment Type")
+    data = controller.get_payment_types(search_term)
 
+    st.write("### Payment Types")
+    for idx, row in data.iterrows():
+        cols = st.columns([3, 1, 1])
+        cols[0].write(f"**{row['name']}**")
 
-st.write("### Payment Types")
+        if cols[1].button("✏️ Edit", key=f"edit_{row['id']}", use_container_width=True):
+            st.session_state["edit_id"] = row["id"]
+            st.session_state["edit_name"] = row["name"]
 
-for idx, row in data.iterrows():
-    cols = st.columns([3, 1, 1])
-    cols[0].write(f"**{row['name']}**")
+        if cols[2].button("🗑️ Delete", key=f"delete_{row['id']}", use_container_width=True):
+            controller.delete_payment_type(row["id"])
+            st.session_state["show_success"] = True
+            st.session_state["show_success_msg"] = "Deleted successfully."
+            st.rerun()
 
-    if cols[1].button("✏️ Edit", key=f"edit_{row['id']}"):
-        st.session_state["edit_id"] = row["id"]
-        st.session_state["edit_name"] = row["name"]
-
-    if cols[2].button("🗑️ Delete", key=f"delete_{row['id']}"):
-        controller.delete_payment_type(row["id"])
-        st.session_state["show_success"] = True
-        st.session_state["show_success_msg"] = "Deleted successfully."
-        st.rerun()
-
-if data.shape[0] == 0:
-    st.write(" No data available 📭")
+    if data.shape[0] == 0:
+        st.write(" No data available 📭")
 
 
 # Edit Form

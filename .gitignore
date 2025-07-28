@@ -5,3 +5,6 @@
 /Scripts
 /share
 pyvenv.cfg
+
+/forms/__pycache__
+/src/__pycache__
