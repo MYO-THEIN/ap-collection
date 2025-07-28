@@ -1,18 +1,18 @@
 PAYMENT TYPE
 -------------------
-id
+# id
 name
 
 
 STOCK CATEGORY
 -------------------
-id
+# id
 name
 
 
 CUSTOMER
 -------------------
-id
+# id
 serial_no
 name
 phone
@@ -25,12 +25,22 @@ country
 
 ORDER
 -------------------
-order_id
+# id
 date
-customer_id
-stock_category_id
+order_no
+# customer_id
+ttl_quantity
+ttl_amount
+discount
+sub_total
+delivery_address
+delivery_charges
+# payment_type_id
+
+ORDER ITEMS
+-------------------
+# id
+# order_id
+# stock_category_id
 quantity
 amount
-delivery_address
-payment_type_id
-order_no

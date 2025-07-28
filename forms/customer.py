@@ -24,36 +24,31 @@ def customer_form(is_edit: bool, submit_callback=None):
         serial_no = st.text_input(
             label="Serial No.", 
             max_chars=5,
-            key="serial_no" if not is_edit else "edit_serial_no", 
-            # value=st.session_state["edit_serial_no"] if is_edit and "edit_serial_no" in st.session_state else ""
+            key="serial_no" if not is_edit else "edit_serial_no"
         )
 
         name = st.text_input(
             label="Name", 
             max_chars=50, 
-            key="name" if not is_edit else "edit_name",
-            # value=st.session_state["edit_name"] if is_edit and "edit_name" in st.session_state else ""
+            key="name" if not is_edit else "edit_name"
         )
 
         phone = st.text_input(
             label="Phone", 
             max_chars=50,
-            key="phone" if not is_edit else "edit_phone",
-            # value=st.session_state["edit_phone"] if is_edit and "edit_phone" in st.session_state else ""
+            key="phone" if not is_edit else "edit_phone"
         )
 
         home_address = st.text_area(
             label="Home Address", 
             max_chars=200,
-            key="home_address" if not is_edit else "edit_home_address",
-            # value=st.session_state["edit_home_address"] if is_edit and "edit_home_address" in st.session_state else ""
+            key="home_address" if not is_edit else "edit_home_address"
         )
 
         delivery_address = st.text_area(
             label="Delivery Address", 
             max_chars=200,
-            key="delivery_address" if not is_edit else "edit_delivery_address",
-            # value=st.session_state["edit_delivery_address"] if is_edit and "edit_delivery_address" in st.session_state else ""
+            key="delivery_address" if not is_edit else "edit_delivery_address"
         )
 
         # 3 columns for Search, City, State/Region
@@ -66,31 +61,23 @@ def customer_form(is_edit: bool, submit_callback=None):
             )
         city = middle.text_input(
             label="City",
-            key="city" if not is_edit else "search_city",
-            # value=st.session_state["search_city"] if "search_city" in st.session_state else "N/A",
+            value=st.session_state["search_city"] if "search_city" in st.session_state else "N/A",
             disabled=True,
             label_visibility="collapsed"
         )
         state_region = right.text_input(
             label="State/Region",
-            key="state_region" if not is_edit else "search_state_region",
-            # value=st.session_state['search_state_region'] if 'search_state_region' in st.session_state else 'N/A',
+            value=st.session_state['search_state_region'] if 'search_state_region' in st.session_state else 'N/A',
             disabled=True,
             label_visibility="collapsed"
         )
         
         # Country
-        selected_country_idx = 0
-        if is_edit and "edit_country" in st.session_state:
-            selected_country = st.session_state["edit_country"]
-            selected_country_idx = countries.index(selected_country) if selected_country in countries else 0
-
         country = st.selectbox(
             label="Country", 
             options=countries, 
             key="country" if not is_edit else "edit_country",
-            accept_new_options=False,
-            # index=selected_country_idx
+            accept_new_options=False
         )
 
         if st.form_submit_button("Save"):

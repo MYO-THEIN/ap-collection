@@ -24,8 +24,8 @@ def search_city_modal(def_state: str="Mandalay Region", sel_state: str=None, sel
                 cols = st.columns([1, 1, 1])
 
                 if city["english"] == sel_city:
-                    cols[0].markdown(f"🟢 {city['english']}")
-                    cols[1].markdown(f"🟢 {city['burmese']}")
+                    cols[0].markdown(f"✔️ {city['english']}")
+                    cols[1].markdown(f"✔️ {city['burmese']}")
                 else:
                     cols[0].markdown(city['english'])
                     cols[1].markdown(city['burmese'])
@@ -44,5 +44,5 @@ def search_city_modal(def_state: str="Mandalay Region", sel_state: str=None, sel
                 st.warning("Please select a city.")
             else:
                 st.session_state["search_city"] = sel_city
-                st.session_state["search_state"] = sel_state
+                st.session_state["search_state_region"] = sel_state
                 st.rerun()
