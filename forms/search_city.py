@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 import json
 
 with open("data/cities_states_regions.json", "r", encoding="utf-8") as f:
@@ -9,7 +8,7 @@ with open("data/cities_states_regions.json", "r", encoding="utf-8") as f:
 states_regions = sorted(list(json_data.keys()))
 
 @st.dialog("### 🔎 Search City")
-def search_city_modal(def_state: str="Mandalay Region", sel_state: str=None, sel_city: str=None):
+def search_city_modal(def_state: str="မန္တလေးတိုင်းဒေသကြီး", sel_state: str=None, sel_city: str=None):
     with st.container():
         state_region = st.selectbox(
             label="State/Region",
@@ -23,26 +22,24 @@ def search_city_modal(def_state: str="Mandalay Region", sel_state: str=None, sel
             for city in cities:
                 cols = st.columns([1, 1, 1])
 
-                if city["english"] == sel_city:
-                    cols[0].markdown(f"✔️ {city['english']}")
-                    cols[1].markdown(f"✔️ {city['burmese']}")
-                else:
-                    cols[0].markdown(city['english'])
-                    cols[1].markdown(city['burmese'])
-
+                is_selected = (city["burmese"] == sel_city)
+                cols[0].markdown(f"✔️ {city['english']}" if is_selected else city['english'])
+                cols[1].markdown(f"✔️ {city['burmese']}" if is_selected else city['burmese'])
                 if cols[2].button("Select", key=f"select_{city['english']}"):
-                    st.session_state["search_city"] = city["english"]
+                    st.session_state["search_city"] = city["burmese"]
                     st.session_state["search_state_region"] = state_region
                     st.rerun()
         else:
-            st.warning(f"No cities data available for {state_region}")
+            st.warning(f"No data available for {state_region} 📭")
 
         st.divider()
 
         if st.button("❌ Close"):
             if sel_city is None:
-                st.warning("Please select a city.")
+                if "search_city" not in st.session_state:
+                    st.warning("Please select a city.")
             else:
-                st.session_state["search_city"] = sel_city
-                st.session_state["search_state_region"] = sel_state
+                if "search_city" not in st.session_state:
+                    st.session_state["search_city"] = sel_city
+                    st.session_state["search_state_region"] = sel_state
                 st.rerun()

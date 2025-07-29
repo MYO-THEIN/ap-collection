@@ -11,22 +11,22 @@ with st.spinner("Searching ..."):
     data = controller.get_stock_categories(search_term)
 
     st.write("### Stock Categories")
-    for idx, row in data.iterrows():
-        cols = st.columns([3, 1, 1])
-        cols[0].write(f"**{row['name']}**")
+    if data.shape[0]:
+        for idx, row in data.iterrows():
+            cols = st.columns([3, 1, 1])
+            cols[0].write(f"**{row['name']}**")
 
-        if cols[1].button("✏️ Edit", key=f"edit_{row['id']}", use_container_width=True):
-            st.session_state["edit_id"] = row["id"]
-            st.session_state["edit_name"] = row["name"]
+            if cols[1].button("✏️ Edit", key=f"edit_{row['id']}", use_container_width=True):
+                st.session_state["edit_id"] = row["id"]
+                st.session_state["edit_name"] = row["name"]
 
-        if cols[2].button("🗑️ Delete", key=f"delete_{row['id']}", use_container_width=True):
-            controller.delete_stock_category(row["id"])
-            st.session_state["show_success"] = True
-            st.session_state["show_success_msg"] = "Deleted successfully."
-            st.rerun()
-
-    if data.shape[0] == 0:
-        st.write(" No data available 📭")
+            if cols[2].button("🗑️ Delete", key=f"delete_{row['id']}", use_container_width=True):
+                controller.delete_stock_category(row["id"])
+                st.session_state["show_success"] = True
+                st.session_state["show_success_msg"] = "Deleted successfully."
+                st.rerun()
+    else:
+        st.write("No data available 📭")
 
 
 # Edit Form

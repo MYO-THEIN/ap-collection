@@ -1,5 +1,5 @@
 {
-    "Ayeyarwady Region": [
+    "ဧရာဝတီတိုင်းဒေသကြီး": [
         {"english": "Bogale", "burmese": "ဘိုကလေး"},
         {"english": "Hinthada", "burmese": "ဟင်္သာတ"},
         {"english": "Kyangin", "burmese": "ကြံခင်း"},
@@ -13,7 +13,7 @@
         {"english": "Pyapon", "burmese": "ဖျာပုံ"},
         {"english": "Thabaung", "burmese": "သာပေါင်း"}
     ],
-    "Bago Region": [
+    "ပဲခူးတိုင်းဒေသကြီး": [
         {"english": "Bago", "burmese": "ပဲခူး", "capital": true},
         {"english": "Kawa", "burmese": "ကဝ"},
         {"english": "Letpadan", "burmese": "လက်ပံတန်း"},
@@ -25,7 +25,38 @@
         {"english": "Taungoo", "burmese": "တောင်ငူ"},
         {"english": "Tharrawaddy", "burmese": "သာယာဝတီ"}
     ],
-    "Magway Region": [
+    "ချင်းပြည်နယ်": [
+        {"english": "Falam", "burmese": "ဖလမ်း"},
+        {"english": "Hakha", "burmese": "ဟားခါး", "capital": true},
+        {"english": "Mindat", "burmese": "မင်းတပ်"},
+        {"english": "Paletwa", "burmese": "ပလက်၀"},
+        {"english": "Tedim", "burmese": "တီးတိန်"},
+        {"english": "Thantlang", "burmese": "ထန်တလန်"}
+    ],
+    "ကချင်ပြည်နယ်": [
+        {"english": "Bhamo", "burmese": "ဗန်းမော်"},
+        {"english": "Hopin", "burmese": "ဟိုပင်"},
+        {"english": "Mansi", "burmese": "မန်စီ"},
+        {"english": "Monghnyin", "burmese": "မိုင်းညှင်း"},
+        {"english": "Myitkyina", "burmese": "မြစ်ကြီးနား", "capital": true},
+        {"english": "Puta-O", "burmese": "ပူတာအို"},
+        {"english": "Shwegu", "burmese": "ရွှေဂူ"}
+    ],
+    "ကယားပြည်နယ်": [
+        {"english": "Bawlakhe", "burmese": "ဘော်လခဲ"},
+        {"english": "Demawso", "burmese": "ဒီးမော့ဆို"},
+        {"english": "Hpasawng", "burmese": "ဖားဆောင်း"},
+        {"english": "Loikaw", "burmese": "လွိုင်ကော်", "capital": true},
+        {"english": "Pruhso", "burmese": "ဖရူဆို"}
+    ],
+    "ကရင်ပြည်နယ်": [
+        {"english": "Hpapun", "burmese": "ဖာပွန်"},
+        {"english": "Hpa-An", "burmese": "ဘားအံ", "capital": true},
+        {"english": "Kawkareik", "burmese": "ကော့ကရိတ်"},
+        {"english": "Kyain Seikgyi", "burmese": "ကြာအင်းဆိပ်ကြီး"},
+        {"english": "Myawaddy", "burmese": "မြဝတီ"}
+    ],
+    "မကွေးတိုင်းဒေသကြီး": [
         {"english": "Magway", "burmese": "မကွေး", "capital": true},
         {"english": "Minbu", "burmese": "မင်းဘူး"},
         {"english": "Mindon", "burmese": "မင်းတုန်း"},
@@ -39,7 +70,7 @@
         {"english": "Thayet", "burmese": "သရက်"},
         {"english": "Yenangyaung", "burmese": "ရေနံချောင်း"}
     ],
-    "Mandalay Region": [
+    "မန္တလေးတိုင်းဒေသကြီး": [
         {"english": "Kyaukse", "burmese": "ကျောက်ဆည်"},
         {"english": "Mandalay", "burmese": "မန္တလေး", "capital": true},
         {"english": "Meiktila", "burmese": "မိတ္ထီလာ"},
@@ -52,39 +83,7 @@
         {"english": "Taungtha", "burmese": "တောင်သာ"},
         {"english": "Thazi", "burmese": "သာစည်"}
     ],
-    "Yangon Region": [
-        {"english": "Dagon Myothit", "burmese": "ဒဂုံမြို့သစ်"},
-        {"english": "Hlegu", "burmese": "လှည်းကူး"},
-        {"english": "Hmawbi", "burmese": "မှော်ဘီ"},
-        {"english": "Kungyangon", "burmese": "ကွမ်းခြံကုန်း"},
-        {"english": "Kyauktan", "burmese": "ကျောက်တန်း"},
-        {"english": "Taikkyi", "burmese": "တိုက်ကြီး"},
-        {"english": "Thanlyin", "burmese": "သန်လျင်"},
-        {"english": "Twantay", "burmese": "တွံတေး"},
-        {"english": "Yangon", "burmese": "ရန်ကုန်", "capital": true}
-    ],
-    "Sagaing Region": [
-        {"english": "Homalin", "burmese": "ဟုမ္မလင်း"},
-        {"english": "Indaw", "burmese": "အင်းတော်"},
-        {"english": "Kalaymyo", "burmese": "ကလေးမြို့"},
-        {"english": "Katha", "burmese": "ကသာ"},
-        {"english": "Khin-U", "burmese": "ခင်ဦး"},
-        {"english": "Mawlaik", "burmese": "မော်လိုက်"},
-        {"english": "Monywa", "burmese": "မုံရွာ"},
-        {"english": "Sagaing", "burmese": "စစ်ကိုင်း", "capital": true},
-        {"english": "Shwebo", "burmese": "ရွှေဘို"},
-        {"english": "Tamu", "burmese": "တမူး"}
-    ],
-    "Tanintharyi Region": [
-        {"english": "Bokpyin", "burmese": "ဘုတ်ပြင်း"},
-        {"english": "Dawei", "burmese": "ထားဝယ်", "capital": true},
-        {"english": "Kawthaung", "burmese": "ကော့သောင်း"},
-        {"english": "Launglon", "burmese": "လောင်းလုံ"},
-        {"english": "Myeik", "burmese": "မြိတ်"},
-        {"english": "Palaw", "burmese": "ပုလော"},
-        {"english": "Yebyu", "burmese": "ရေဖြူ"}
-    ],
-    "Mon State": [
+    "မွန်ပြည်နယ်": [
         {"english": "Kyaikmaraw", "burmese": "ကျိုက်မရော"},
         {"english": "Mawlamyine", "burmese": "မော်လမြိုင်", "capital": true},
         {"english": "Mudon", "burmese": "မုဒုံ"},
@@ -92,7 +91,13 @@
         {"english": "Thaton", "burmese": "သထုံ"},
         {"english": "Ye", "burmese": "ရေး"}
     ],
-    "Rakhine State": [
+    "နေပြည်တော်ပြည်ထောင်စုနယ်မြေ": [
+        {"english": "Lewe", "burmese": "လယ်ဝေး"},
+        {"english": "Naypyidaw", "burmese": "နေပြည်တော်", "capital": true},
+        {"english": "Pyinmana", "burmese": "ပျဉ်းမနား"},
+        {"english": "Tatkon", "burmese": "တပ်ကုန်း"}
+    ],
+    "ရခိုင်ပြည်နယ်": [
         {"english": "Ann", "burmese": "အမ်း"},
         {"english": "Kyaukpyu", "burmese": "ကျောက်ဖြူ"},
         {"english": "Maungdaw", "burmese": "မောင်တော"},
@@ -102,38 +107,19 @@
         {"english": "Sittwe", "burmese": "စစ်တွေ", "capital": true},
         {"english": "Thandwe", "burmese": "သံတွဲ"}
     ],
-    "Kachin State": [
-        {"english": "Bhamo", "burmese": "ဗန်းမော်"},
-        {"english": "Hopin", "burmese": "ဟိုပင်"},
-        {"english": "Mansi", "burmese": "မန်စီ"},
-        {"english": "Monghnyin", "burmese": "မိုင်းညှင်း"},
-        {"english": "Myitkyina", "burmese": "မြစ်ကြီးနား", "capital": true},
-        {"english": "Puta-O", "burmese": "ပူတာအို"},
-        {"english": "Shwegu", "burmese": "ရွှေဂူ"}
+    "စစ်ကိုင်းတိုင်းဒေသကြီး": [
+        {"english": "Homalin", "burmese": "ဟုမ္မလင်း"},
+        {"english": "Indaw", "burmese": "အင်းတော်"},
+        {"english": "Kalaymyo", "burmese": "ကလေးမြို့"},
+        {"english": "Katha", "burmese": "ကသာ"},
+        {"english": "Khin-U", "burmese": "ခင်ဦး"},
+        {"english": "Mawlaik", "burmese": "မော်လိုက်"},
+        {"english": "Monywa", "burmese": "မုံရွာ", "capital": true},
+        {"english": "Sagaing", "burmese": "စစ်ကိုင်း"},
+        {"english": "Shwebo", "burmese": "ရွှေဘို"},
+        {"english": "Tamu", "burmese": "တမူး"}
     ],
-    "Kayin State": [
-        {"english": "Hpapun", "burmese": "ဖာပွန်"},
-        {"english": "Hpa-An", "burmese": "ဘားအံ", "capital": true},
-        {"english": "Kawkareik", "burmese": "ကော့ကရိတ်"},
-        {"english": "Kyain Seikgyi", "burmese": "ကြာအင်းဆိပ်ကြီး"},
-        {"english": "Myawaddy", "burmese": "မြဝတီ"}
-    ],
-    "Kayah State": [
-        {"english": "Bawlakhe", "burmese": "ဘော်လခဲ"},
-        {"english": "Demawso", "burmese": "ဒီးမော့ဆို"},
-        {"english": "Hpasawng", "burmese": "ဖားဆောင်း"},
-        {"english": "Loikaw", "burmese": "လွိုင်ကော်", "capital": true},
-        {"english": "Pruhso", "burmese": "ဖရူဆို"}
-    ],
-    "Chin State": [
-        {"english": "Falam", "burmese": "ဖလမ်း"},
-        {"english": "Hakha", "burmese": "ဟားခါး", "capital": true},
-        {"english": "Mindat", "burmese": "မင်းတပ်"},
-        {"english": "Paletwa", "burmese": "ပလက်၀"},
-        {"english": "Tedim", "burmese": "တီးတိန်"},
-        {"english": "Thantlang", "burmese": "ထန်တလန်"}
-    ],
-    "Shan State": [
+    "ရှမ်းပြည်နယ်": [
         {"english": "Hsipaw", "burmese": "သီပေါ"},
         {"english": "Kalaw", "burmese": "ကလော"},
         {"english": "Kalay (Shan)", "burmese": "ကလေး"},
@@ -143,10 +129,24 @@
         {"english": "Pindaya", "burmese": "ပင်းတယ"},
         {"english": "Taunggyi", "burmese": "တောင်ကြီး", "capital": true}
     ],
-    "Naypyidaw Union Territory": [
-        {"english": "Lewe", "burmese": "လယ်ဝေး"},
-        {"english": "Naypyidaw", "burmese": "နေပြည်တော်", "capital": true},
-        {"english": "Pyinmana", "burmese": "ပျဉ်းမနား"},
-        {"english": "Tatkon", "burmese": "တပ်ကုန်း"}
+    "တနင်္သာရီတိုင်းဒေသကြီး": [
+        {"english": "Bokpyin", "burmese": "ဘုတ်ပြင်း"},
+        {"english": "Dawei", "burmese": "ထားဝယ်", "capital": true},
+        {"english": "Kawthaung", "burmese": "ကော့သောင်း"},
+        {"english": "Launglon", "burmese": "လောင်းလုံ"},
+        {"english": "Myeik", "burmese": "မြိတ်"},
+        {"english": "Palaw", "burmese": "ပုလော"},
+        {"english": "Yebyu", "burmese": "ရေဖြူ"}
+    ],
+    "ရန်ကုန်တိုင်းဒေသကြီး": [
+        {"english": "Dagon Myothit", "burmese": "ဒဂုံမြို့သစ်"},
+        {"english": "Hlegu", "burmese": "လှည်းကူး"},
+        {"english": "Hmawbi", "burmese": "မှော်ဘီ"},
+        {"english": "Kungyangon", "burmese": "ကွမ်းခြံကုန်း"},
+        {"english": "Kyauktan", "burmese": "ကျောက်တန်း"},
+        {"english": "Taikkyi", "burmese": "တိုက်ကြီး"},
+        {"english": "Thanlyin", "burmese": "သန်လျင်"},
+        {"english": "Twantay", "burmese": "တွံတေး"},
+        {"english": "Yangon", "burmese": "ရန်ကုန်", "capital": true}
     ]
 }

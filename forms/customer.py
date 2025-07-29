@@ -1,6 +1,4 @@
 import streamlit as st
-import pandas as pd
-import json
 import src.customer as controller
 import forms.search_city as search_city
 
@@ -51,7 +49,7 @@ def customer_form(is_edit: bool, submit_callback=None):
             key="delivery_address" if not is_edit else "edit_delivery_address"
         )
 
-        # 3 columns for Search, City, State/Region
+        # columns for Search button, City, State/Region
         left, middle, right = st.columns(3, vertical_alignment="bottom")
         search_city_submit = left.form_submit_button("🔎 City, State/Region", use_container_width=True)
         if search_city_submit:
