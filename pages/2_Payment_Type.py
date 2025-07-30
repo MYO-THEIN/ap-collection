@@ -2,8 +2,11 @@ import streamlit as st
 import pandas as pd
 import src.payment_type as controller
 
-st.title("💰 Payment Types")
+if "show_success" in st.session_state and st.session_state["show_success"]:
+    st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
 
+
+st.title("💰 Payment Types")
 
 # Search
 with st.spinner("Searching ..."):
@@ -27,6 +30,8 @@ with st.spinner("Searching ..."):
                 st.rerun()
     else:
         st.write("No data available 📭")
+
+st.divider()
 
 
 # Edit Form
@@ -61,7 +66,3 @@ with st.expander("➕ Add New Payment Type"):
                     st.rerun()
             else:
                 st.warning("Name cannot be empty.")
-
-
-if "show_success" in st.session_state and st.session_state["show_success"]:
-    st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")

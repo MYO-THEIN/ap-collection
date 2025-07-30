@@ -22,7 +22,7 @@ stock_categories = load_stock_categories()
 
 
 def construct_order_no(dt: date, customer_serial_no: str):
-    return f"{dt}-{datetime.now.strftime("%H%M%S")}-{customer_serial_no}"
+    return f"{dt.strftime('%Y%m%d')}-{datetime.now().strftime('%H%M%S')}-{customer_serial_no}"
 
 
 def order_form(is_edit: bool, submit_callback=None):
@@ -34,9 +34,16 @@ def order_form(is_edit: bool, submit_callback=None):
 
         dt = st.date_input(
             label="Date", 
-            value=datetime.today(),
+            value=datetime.today() if not is_edit else st.session_state["edit_date"],
             format="YYYY-MM-DD"
         )
+
+        if is_edit:
+            edit_order_no = st.text_input(
+                label="Order No.",
+                value=st.session_state["edit_order_no"],
+                disabled=True
+            )
 
         left, right = st.columns(2, vertical_alignment="bottom")
         search_customer_submit = left.button("🔎 Customer", use_container_width=True)
@@ -72,9 +79,16 @@ def order_form(is_edit: bool, submit_callback=None):
         searched_delivery_address = st.session_state["search_delivery_address"] if "search_delivery_address" in st.session_state else ""
         searched_city = st.session_state["search_city"] if "search_city" in st.session_state else ""
         searched_state_region = st.session_state["search_state_region"] if "search_state_region" in st.session_state else ""
+        if is_edit:
+            if st.session_state["search_id"] == st.session_state["edit_customer_id"]:
+                deli_addr = st.session_state["edit_delivery_address"]
+            else:
+                deli_addr = f"{searched_delivery_address}, {searched_city}, {searched_state_region}"
+        else:
+            deli_addr = f"{searched_delivery_address}, {searched_city}, {searched_state_region}"
         delivery_address = st.text_area(
             label="Delivery Address",
-            value=searched_delivery_address + searched_city + searched_state_region,
+            value=deli_addr,
             max_chars=200
         )
 
@@ -82,16 +96,17 @@ def order_form(is_edit: bool, submit_callback=None):
             label="Delivery Charges",
             min_value=0, 
             max_value=10000,
-            value=0
+            value=st.session_state["edit_delivery_charges"] if is_edit else 0
         )
 
         payment_type_name = st.selectbox(
             label="Payment Type",
             options=payment_types["name"].tolist(),
-            accept_new_options=False
+            accept_new_options=False,
+            index=payment_types["name"].tolist().index(st.session_state["edit_payment_type_name"]) if is_edit else 0
         )
         if payment_type_name:
-            payment_type_id = payment_types[payment_types["name"] == payment_type_name].iloc[0]["id"]
+            payment_type_id = int(payment_types[payment_types["name"] == payment_type_name].iloc[0]["id"])
 
     # ----- Item Info -----
     with col2:
@@ -104,7 +119,7 @@ def order_form(is_edit: bool, submit_callback=None):
                 accept_new_options=False
             )
             if stock_category_name:
-                stock_category_id = stock_categories[stock_categories["name"] == stock_category_name].iloc[0]["id"]
+                stock_category_id = int(stock_categories[stock_categories["name"] == stock_category_name].iloc[0]["id"])
 
             quantity = st.number_input("Quantity", min_value=1, value=1, format="%d")
             amount = st.number_input("Amount", min_value=0, format="%d")
@@ -112,43 +127,74 @@ def order_form(is_edit: bool, submit_callback=None):
             add_detail = st.form_submit_button("Add Item")
             if add_detail:
                 if stock_category_name and quantity and amount:
-                    detail = {
+                    item = {
                         "stock_category_id": stock_category_id,
                         "stock_category_name": stock_category_name,
                         "quantity": quantity,
                         "amount": amount
                     }
-                    st.session_state["order_items"].append(detail)
+
+                    if is_edit:
+                        st.session_state["edit_order_items"].append(item)
+                    else:
+                        st.session_state["order_items"].append(item)
                     st.success(f"Added: {stock_category_name} x {quantity}")
 
     # ----- Items List -----
     st.subheader("📋 Order Items")
-    if st.session_state["order_items"]:
-        st.dataframe(st.session_state["order_items"], use_container_width=True)
+    if ("order_items" in st.session_state and st.session_state["order_items"]) or ("edit_order_items" in st.session_state and st.session_state["edit_order_items"]):
+        df = st.data_editor(
+            data=st.session_state["order_items"] if not is_edit else st.session_state["edit_order_items"],
+            column_config={
+                "stock_category_id": st.column_config.Column(label="Stock Category ID", disabled=True),
+                "stock_category_name": st.column_config.Column(label="Stock Category", disabled=True),
+                "quantity": st.column_config.NumberColumn(label="Quantity", step="1"),
+                "amount": st.column_config.NumberColumn(label="Amount", step="1000")
+            },
+            use_container_width=True,
+            num_rows="dynamic",
+            hide_index=False,
+            key="order_items_data_editor"
+        )
+
+        if is_edit:
+            st.session_state["edit_order_items"] = df
+        else:
+            st.session_state["order_items"] = df
     else:
         st.info("No items added yet.")
 
     ttl_quantity, ttl_amount = 0, 0
-    for d in st.session_state["order_items"]:
-        ttl_quantity += d["quantity"]
-        ttl_amount += d["amount"]
-    st.markdown(f"### 🧮 Total Quantity: {ttl_quantity}")
-    st.markdown(f"### 🧮 Total Amount: {ttl_amount :,}")
+    if is_edit and "edit_order_items" in st.session_state:
+        for d in st.session_state["edit_order_items"]:
+            ttl_quantity += d["quantity"]
+            ttl_amount += d["amount"]
+    elif not is_edit and "order_items" in st.session_state:
+        for d in st.session_state["order_items"]:
+            ttl_quantity += d["quantity"]
+            ttl_amount += d["amount"]
+    st.markdown(f"### 🧮 Total Quantity: {ttl_quantity:,}")
+    st.markdown(f"### 🧮 Total Amount: {ttl_amount:,}")
 
-    if st.button("✅ Confirm Order" if not is_edit else "Save Order"):
+    # Save
+    if st.button("✅ Confirm Order" if not is_edit else "💾 Save Order"):
         if "search_id" not in st.session_state:
             st.warning("Select a customer.")
         elif delivery_address is None:
             st.warning("Enter the delivery address.")
         elif payment_type_id is None:
             st.warning("Select a payment type.")
-        elif len(st.session_state["order_items"]) == 0:
-            st.warning("Order must have an item at least.")            
+        elif not is_edit and not st.session_state["order_items"]:
+            st.warning("Order must have an item at least.")
+        elif is_edit and not st.session_state["edit_order_items"]:
+            st.warning("Order must have an item at least.")
         else:
+            print(f"type(payment_type_id): {type(payment_type_id)}")
+
             order = {
                 "id": st.session_state["edit_id"] if is_edit else None,
                 "date": dt,
-                "order_no": construct_order_no(date, serial_no),
+                "order_no": construct_order_no(dt, serial_no) if not is_edit else edit_order_no,
                 "customer_id": st.session_state["search_id"],
                 "ttl_quantity": ttl_quantity,
                 "ttl_amount": ttl_amount,
@@ -160,14 +206,17 @@ def order_form(is_edit: bool, submit_callback=None):
             }
 
             if is_edit:
-                success = controller.update_order(order=order, order_items=st.session_state["order_items"])
-                msg = "Updated successfully."
+                success = controller.update_order(order=order, order_items=st.session_state["edit_order_items"])
+                msg = "Updated successfully." if success else "Updating an order failed."
             else:
                 success = controller.add_order(order=order, order_items=st.session_state["order_items"])
-                msg = "Added successfully."
+                msg = "Added successfully." if success else "Adding an order failed."
 
             if success:
-                del st.session_state["order_items"]
+                if "order_items" in st.session_state: 
+                    del st.session_state["order_items"]
+                if "edit_order_items" in st.session_state:
+                    del st.session_state["edit_order_items"]
                 st.session_state["show_success"] = True
                 st.session_state["show_success_message"] = msg
                 if submit_callback:
@@ -175,3 +224,8 @@ def order_form(is_edit: bool, submit_callback=None):
                         "show_success": True,
                         "show_success_msg": msg
                     })
+            else:
+                submit_callback({
+                    "show_error": True,
+                    "show_error_msg": msg
+                })

@@ -78,7 +78,7 @@ def customer_form(is_edit: bool, submit_callback=None):
             accept_new_options=False
         )
 
-        if st.form_submit_button("Save"):
+        if st.form_submit_button("💾 Save"):
             if serial_no.strip() and name.strip():
                 if is_edit:
                     success = controller.update_customer(

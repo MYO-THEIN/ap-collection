@@ -3,8 +3,14 @@ import pandas as pd
 import src.customer as controller
 import forms.customer as customer_form
 
-st.title("🧑 Customers")
+if "show_success" in st.session_state and st.session_state["show_success"]:
+    st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
 
+if "show_form" not in st.session_state:
+    st.session_state["show_form"] = False
+
+
+st.title("🧑 Customers")
 
 # Search
 with st.spinner("Searching ..."):
@@ -39,9 +45,7 @@ with st.spinner("Searching ..."):
     else:
         st.write("No data available 📭")
 
-
-if "show_form" not in st.session_state:
-    st.session_state["show_form"] = False
+st.divider()
 
 
 def clear_all_inputs():
@@ -51,7 +55,6 @@ def clear_all_inputs():
             del st.session_state[key]
         if f"edit_{key}" in st.session_state:
             del st.session_state[f"edit_{key}"]
-
 
 def customer_form_callback(data=None):
     if "show_success" in data:
@@ -74,6 +77,3 @@ if "edit_id" in st.session_state:
 
 if st.session_state["show_form"]:
     customer_form.customer_form(is_edit="edit_id" in st.session_state, submit_callback=customer_form_callback)
-
-if "show_success" in st.session_state and st.session_state["show_success"]:
-    st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
