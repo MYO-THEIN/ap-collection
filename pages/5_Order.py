@@ -4,16 +4,8 @@ from datetime import datetime
 import src.order as controller
 import forms.order as order_form
 
-if "show_success" in st.session_state and st.session_state["show_success"]:
-    st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
-elif "show_error" in st.session_state and st.session_state["show_error"]:
-    st.error(st.session_state["show_error_msg"], icon=":material/thumb_down:")
-
 if "show_form" not in st.session_state:
     st.session_state["show_form"] = False
-
-# DEBUGGING
-st.write(st.session_state["show_form"])
 
 
 st.title("🛒 Orders")
@@ -22,7 +14,7 @@ st.title("🛒 Orders")
 with st.spinner("Searching ..."):
     cols = st.columns([1, 3])
     
-    dt = cols[0].date_input(label="Date", value=datetime.today(), format="YYYY-MM-DD", key="search_date")
+    dt = cols[0].date_input(label="🔍 Date", value=datetime.today(), format="YYYY-MM-DD", key="search_date")
     search_term = cols[1].text_input("🔍 Search Order")
     if dt or search_term:
         # orders
@@ -38,11 +30,11 @@ with st.spinner("Searching ..."):
             for _, row in data.iterrows():
                 items = data_items[data_items["order_id"] == row["id"]]
 
-                col1, col2 = st.columns([3, 1], vertical_alignment="bottom")
+                col1, col2 = st.columns([3, 1])
                 with col1:
-                    st.markdown(f"**Date**: {row['date']} | **Order No.**: {row['order_no']} | **Customer**: {row['customer_serial_no']} {row['customer_name']}")
-                    st.markdown(f"**Delivery Address**: {row['delivery_address']}")
-                    st.markdown(f"**Total Quantity**: {row['ttl_quantity']} | **Total Amount**: {row['ttl_amount']:,} | **Payment Type**: {row['payment_type_name']}")
+                    st.markdown(f"**Date**: {row['date']} | **Customer**: {row['customer_serial_no']} {row['customer_name']}")
+                    st.markdown(f"**Total Quantity**: {row['ttl_quantity']} | **Total Amount**: {row['ttl_amount']:,} | **Delivery Charges**: {row['delivery_charges']}")
+                    st.markdown(f"**Payment Type**: {row['payment_type_name']}")
                 
                 with col2:
                     if st.button(label="✏️ Edit", key=f"edit_{row['id']}", use_container_width=True):
@@ -84,28 +76,59 @@ with st.spinner("Searching ..."):
                         hide_index=True
                     )
 
-                st.markdown("---")
+                st.divider()
         else:
             st.info("No data available 📭")
 
+
+def clear_all_inputs():
+    # Add New
+    add_new_keys = [
+        "date",
+        "search_id", "search_serial_no", "search_name", "search_phone", "search_delivery_address", "search_city", "search_state_region", 
+        "delivery_address", "ttl_quantity", "ttl_amount", "delivery_charges", "payment_type_id", "payment_type_name"
+    ]
+    for key in add_new_keys:
+        if key in st.session_state:
+            del st.session_state[key]
+
+    # Edit
+    edit_keys = [
+        "edit_id", "edit_date", "edit_order_no", 
+        "search_id", "search_serial_no", "search_name", "search_phone", "search_delivery_address", "search_city", "search_state_region", 
+        "edit_customer_id", "edit_delivery_address", "edit_ttl_quantity", "edit_ttl_amount", "edit_discount", "edit_sub_total", "edit_delivery_charges", "edit_payment_type_id", "edit_payment_type_name",
+        "edit_order_items"
+    ]
+    for key in edit_keys:
+        if key in st.session_state:
+            del st.session_state[key]
 
 def order_form_callback(data=None):
     if "show_success" in data:
         st.session_state["show_success"] = data["show_success"]
         st.session_state["show_success_msg"] = data["show_success_msg"]
-        st.session_state["show_form"] = False
-        st.rerun()
+    elif "show_error" in data:
+        st.session_state["show_error"] = data["show_error"]
+        st.session_state["show_error_msg"] = data["show_error_msg"]
 
+    clear_all_inputs()
+    st.session_state["show_form"] = False
+    st.rerun()
 
 # Add New Form
 if st.button("➕ Add New Order"):
     st.session_state["show_form"] = True
 
+st.divider()
 
 # Edit Form
 if "edit_id" in st.session_state:
     st.session_state["show_form"] = True
 
-
 if st.session_state["show_form"]:
     order_form.order_form(is_edit="edit_id" in st.session_state, submit_callback=order_form_callback)
+
+if "show_success" in st.session_state and st.session_state["show_success"]:
+    st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
+elif "show_error" in st.session_state and st.session_state["show_error"]:
+    st.error(st.session_state["show_error_msg"], icon=":material/thumb_down:")

@@ -1,36 +1,45 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, date
-import forms.search_customer as search_customer
+from forms import customer, search_customer
 from src.payment_type import get_payment_types
 from src.stock_category import get_stock_categories
+from src.customer import get_customer_by_id
 import src.order as controller
 
 if "order_items" not in st.session_state:
     st.session_state["order_items"] = []
 
-@st.cache_data
-def load_payment_types():
-    return get_payment_types()
+@st.dialog(title="Add New Customer", width="large")
+def display_customer_form_dialog():
+    customer.customer_form(is_edit=False, submit_callback=new_customer_submit_callback)
 
-@st.cache_data
-def load_stock_categories():
-    return get_stock_categories()
+def new_customer_submit_callback(data=None):
+    if "show_success" in data:
+        df = get_customer_by_id(id=data["new_id"])
+        if df.shape[0]:
+            st.session_state["search_id"] = int(df.iloc[0]["id"])
+            st.session_state["search_serial_no"] = df.iloc[0]["serial_no"]
+            st.session_state["search_name"] = df.iloc[0]["name"]
+            st.session_state["search_phone"] = df.iloc[0]["phone"]
+            st.session_state["search_delivery_address"] = df.iloc[0]["delivery_address"]
+            st.session_state["search_city"] = df.iloc[0]["city"]
+            st.session_state["search_state_region"] = df.iloc[0]["state_region"]
+            st.rerun()
 
-payment_types = load_payment_types()
-stock_categories = load_stock_categories()
-
+payment_types, stock_categories = None, None
+payment_types = get_payment_types()
+stock_categories = get_stock_categories()
 
 def construct_order_no(dt: date, customer_serial_no: str):
     return f"{dt.strftime('%Y%m%d')}-{datetime.now().strftime('%H%M%S')}-{customer_serial_no}"
-
 
 def order_form(is_edit: bool, submit_callback=None):
     col1, col2 = st.columns(2)
 
     # ----- Order Info -----
     with col1:
-        st.subheader("Order Info")
+        st.subheader("🧾 Order Info")
 
         dt = st.date_input(
             label="Date", 
@@ -46,17 +55,26 @@ def order_form(is_edit: bool, submit_callback=None):
             )
 
         left, right = st.columns(2, vertical_alignment="bottom")
-        search_customer_submit = left.button("🔎 Customer", use_container_width=True)
-        if search_customer_submit:
-            search_customer.search_customer_modal(
-                sel_id=st.session_state["search_id"] if "search_id" in st.session_state else None,
-                sel_serial_no=st.session_state["search_serial_no"] if "search_serial_no" in st.session_state else None,
-                sel_name=st.session_state["search_name"] if "search_name" in st.session_state else None,
-                sel_phone=st.session_state["search_phone"] if "search_phone" in st.session_state else None,
-                sel_delivery_address=st.session_state["search_delivery_address"] if "search_delivery_address" in st.session_state else None,
-                sel_city=st.session_state["search_city"] if "search_city" in st.session_state else None,
-                sel_state_region=st.session_state["search_state_region"] if "search_state_region" in st.session_state else None
-            )
+        left1, left2 = left.columns(2, vertical_alignment="bottom")
+        # Search Customer
+        with left1:
+            search_customer_submit = st.button("🔎", use_container_width=True)
+            if search_customer_submit:
+                search_customer.search_customer_modal(
+                    sel_id=st.session_state["search_id"] if "search_id" in st.session_state else None,
+                    sel_serial_no=st.session_state["search_serial_no"] if "search_serial_no" in st.session_state else None,
+                    sel_name=st.session_state["search_name"] if "search_name" in st.session_state else None,
+                    sel_phone=st.session_state["search_phone"] if "search_phone" in st.session_state else None,
+                    sel_delivery_address=st.session_state["search_delivery_address"] if "search_delivery_address" in st.session_state else None,
+                    sel_city=st.session_state["search_city"] if "search_city" in st.session_state else None,
+                    sel_state_region=st.session_state["search_state_region"] if "search_state_region" in st.session_state else None
+                )
+        # New Customer
+        with left2:
+            new_customer_submit = st.button("➕", use_container_width=True)
+            if new_customer_submit:
+                display_customer_form_dialog()
+                    
         serial_no = right.text_input(
             label="Serial No.",
             value=st.session_state["search_serial_no"] if "search_serial_no" in st.session_state else "",
@@ -110,7 +128,7 @@ def order_form(is_edit: bool, submit_callback=None):
 
     # ----- Item Info -----
     with col2:
-        st.subheader("Item Info")
+        st.subheader("🏷️ Item Info")
 
         with st.form(key="add_new_item_form" if is_edit else "edit_item_form", clear_on_submit=True):
             stock_category_name = st.selectbox(
@@ -137,7 +155,10 @@ def order_form(is_edit: bool, submit_callback=None):
                     if is_edit:
                         st.session_state["edit_order_items"].append(item)
                     else:
+                        if "order_items" not in st.session_state:
+                            st.session_state["order_items"] = []
                         st.session_state["order_items"].append(item)
+
                     st.success(f"Added: {stock_category_name} x {quantity}")
 
     # ----- Items List -----
@@ -189,8 +210,6 @@ def order_form(is_edit: bool, submit_callback=None):
         elif is_edit and not st.session_state["edit_order_items"]:
             st.warning("Order must have an item at least.")
         else:
-            print(f"type(payment_type_id): {type(payment_type_id)}")
-
             order = {
                 "id": st.session_state["edit_id"] if is_edit else None,
                 "date": dt,

@@ -2,10 +2,6 @@ import streamlit as st
 import pandas as pd
 import src.stock_category as controller
 
-if "show_success" in st.session_state and st.session_state["show_success"]:
-    st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
-
-
 st.title("👕 Stock Categories")
 
 # Search
@@ -51,7 +47,6 @@ if "edit_id" in st.session_state:
             else:
                 st.warning("Name cannot be empty.")
 
-
 # Add New Form
 with st.expander("➕ Add New Stock Category"):
     with st.form("add_form", enter_to_submit=False, clear_on_submit=True):
@@ -66,3 +61,6 @@ with st.expander("➕ Add New Stock Category"):
                     st.rerun()
             else:
                 st.warning("Name cannot be empty.")
+
+if "show_success" in st.session_state and st.session_state["show_success"]:
+    st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
