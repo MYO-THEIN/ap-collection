@@ -5,7 +5,7 @@ import altair as alt
 from datetime import date
 from src.report import get_orders
 
-st.set_page_config(page_title="Daily Dashboard", layout="wide")
+st.set_page_config(layout="wide")
 
 if "orders_data" in st.session_state:
     del st.session_state["orders_data"]

@@ -4,11 +4,11 @@ from datetime import datetime
 import src.order as controller
 import forms.order as order_form
 
+st.set_page_config(layout="centered")
+st.title("🛒 Orders")
+
 if "show_form" not in st.session_state:
     st.session_state["show_form"] = False
-
-
-st.title("🛒 Orders")
 
 # Search
 with st.spinner("Searching ..."):

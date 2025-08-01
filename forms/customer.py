@@ -59,6 +59,10 @@ def customer_form(is_edit: bool, submit_callback=None):
                 key="delivery_address" if not is_edit else "edit_delivery_address"
             )
             
+            # setting default country
+            if not is_edit:
+                st.session_state["country"] = "Myanmar"
+
             country = st.selectbox(
                 label="Country", 
                 options=countries, 
@@ -70,7 +74,11 @@ def customer_form(is_edit: bool, submit_callback=None):
                 st.session_state["submitted"] = True
 
     with col2:
-        def_state = "မန္တလေးတိုင်းဒေသကြီး"
+        # setting default city, state_region
+        if not is_edit:
+            st.session_state["state_region"] = "မန္တလေးတိုင်းဒေသကြီး"
+            st.session_state["city"] = "မန္တလေး"
+
         state_region = st.selectbox(
             label="State/Region",
             options=states_regions,

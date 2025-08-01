@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import src.stock_category as controller
 
+st.set_page_config(layout="centered")
 st.title("👕 Stock Categories")
 
 # Search
@@ -34,7 +35,7 @@ st.divider()
 if "edit_id" in st.session_state:
     with st.form("edit_form", enter_to_submit=False, clear_on_submit=True):
         new_name = st.text_input(label="Name", value=st.session_state["edit_name"], max_chars=50)
-        submitted = st.form_submit_button("Save")
+        submitted = st.form_submit_button("💾 Save")
         if submitted:
             if new_name.strip():
                 success = controller.update_stock_category(st.session_state["edit_id"], new_name)
@@ -51,7 +52,7 @@ if "edit_id" in st.session_state:
 with st.expander("➕ Add New Stock Category"):
     with st.form("add_form", enter_to_submit=False, clear_on_submit=True):
         new_name = st.text_input(label="Name", max_chars=50)
-        submitted = st.form_submit_button("Add")
+        submitted = st.form_submit_button("💾 Add")
         if submitted:
             if new_name.strip():
                 success = controller.add_stock_category(new_name)
@@ -64,3 +65,7 @@ with st.expander("➕ Add New Stock Category"):
 
 if "show_success" in st.session_state and st.session_state["show_success"]:
     st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
+
+# For the selectbox in Order Form
+if "stock_categories" in st.session_state:
+    del st.session_state["stock_categories"]

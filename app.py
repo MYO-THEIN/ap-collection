@@ -1,11 +1,7 @@
 import streamlit as st
 import src.utils as utils
 
-st.set_page_config(
-    page_title="AP Collection",
-    page_icon="🌴",
-    layout="centered"
-)
+st.set_page_config(page_title="AP Collection", page_icon="🌴")
 
 # About Us
 about_us_pg = st.Page(

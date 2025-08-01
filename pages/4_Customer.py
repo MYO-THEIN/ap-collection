@@ -3,11 +3,11 @@ import pandas as pd
 import src.customer as controller
 import forms.customer as customer_form
 
+st.set_page_config(layout="centered")
+st.title("🧑 Customers")
+
 if "show_form" not in st.session_state:
     st.session_state["show_form"] = False
-
-
-st.title("🧑 Customers")
 
 # Search
 with st.spinner("Searching ..."):

@@ -124,7 +124,7 @@ def order_form(is_edit: bool, submit_callback=None):
             label="Payment Type",
             options=payment_types["name"].tolist(),
             accept_new_options=False,
-            index=payment_types["name"].tolist().index(st.session_state["edit_payment_type_name"]) if is_edit else 0
+            index=payment_types["name"].tolist().index(st.session_state["edit_payment_type_name"]) if is_edit else payment_types["name"].tolist().index("KBZ Pay")
         )
         if payment_type_name:
             payment_type_id = int(payment_types[payment_types["name"] == payment_type_name].iloc[0]["id"])
