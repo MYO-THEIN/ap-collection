@@ -32,7 +32,7 @@ def search_customer_modal(sel_id: int=None, sel_serial_no: str=None, sel_name: s
                     """
                 )
                 
-                if st.button("Select", key=f"select_{customer['id']}"):
+                if st.button("👉 Select", key=f"select_{customer['id']}"):
                     st.session_state["search_id"] = customer["id"]
                     st.session_state["search_serial_no"] = customer["serial_no"]
                     st.session_state["search_name"] = customer["name"]

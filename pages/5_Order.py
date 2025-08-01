@@ -27,14 +27,37 @@ with st.spinner("Searching ..."):
 
         st.write("### Orders")
         if data.shape[0]:
-            for _, row in data.iterrows():
+            # pagination
+            trans_per_page = 5
+            if "page" not in st.session_state:
+                st.session_state["page"] = 1
+
+            total_pages = (len(data) - 1) // trans_per_page + 1
+            col1, col2, col3 = st.columns([1, 3, 1], vertical_alignment="center")
+            with col1:
+                if st.button("⬅️ Prev", use_container_width=True) and st.session_state["page"] > 1:
+                    st.session_state["page"] -= 1
+            with col2:
+                st.markdown(
+                    f"<div style='text-align: center;'>Page {st.session_state['page']} of {total_pages}</div>",
+                    unsafe_allow_html=True
+                )
+            with col3:
+                if st.button("Next ➡️", use_container_width=True) and st.session_state["page"] < total_pages:
+                    st.session_state["page"] += 1
+
+            start = (st.session_state["page"] - 1) * trans_per_page
+            end = start + trans_per_page
+            paginated_data = data[start : end]
+
+            for _, row in paginated_data.iterrows():
                 items = data_items[data_items["order_id"] == row["id"]]
 
                 col1, col2 = st.columns([3, 1])
                 with col1:
                     st.markdown(f"**Date**: {row['date']} | **Customer**: {row['customer_serial_no']} {row['customer_name']}")
                     st.markdown(f"**Total Quantity**: {row['ttl_quantity']} | **Total Amount**: {row['ttl_amount']:,} | **Delivery Charges**: {row['delivery_charges']}")
-                    st.markdown(f"**Payment Type**: {row['payment_type_name']}")
+                    st.markdown(f"**Payment Type**: {row['payment_type_name']} | **Paid Amount**: {row['paid_amount']:,}")
                 
                 with col2:
                     if st.button(label="✏️ Edit", key=f"edit_{row['id']}", use_container_width=True):
@@ -57,6 +80,7 @@ with st.spinner("Searching ..."):
                         st.session_state["edit_delivery_charges"] = row["delivery_charges"]
                         st.session_state["edit_payment_type_id"] = row["payment_type_id"]
                         st.session_state["edit_payment_type_name"] = row["payment_type_name"]
+                        st.session_state["edit_paid_amount"] = row["paid_amount"]
                         st.session_state["edit_order_items"] = items.drop(columns=["id", "order_id"]).to_dict(orient="records")
 
                     if st.button(label="🗑️ Delete", key=f"delete_{row['id']}", use_container_width=True):
@@ -84,9 +108,9 @@ with st.spinner("Searching ..."):
 def clear_all_inputs():
     # Add New
     add_new_keys = [
-        "date",
+        "date", "order_no",
         "search_id", "search_serial_no", "search_name", "search_phone", "search_delivery_address", "search_city", "search_state_region", 
-        "delivery_address", "ttl_quantity", "ttl_amount", "delivery_charges", "payment_type_id", "payment_type_name"
+        "delivery_address", "ttl_quantity", "ttl_amount", "delivery_charges", "payment_type_id", "payment_type_name", "paid_amount"
     ]
     for key in add_new_keys:
         if key in st.session_state:
@@ -96,7 +120,7 @@ def clear_all_inputs():
     edit_keys = [
         "edit_id", "edit_date", "edit_order_no", 
         "search_id", "search_serial_no", "search_name", "search_phone", "search_delivery_address", "search_city", "search_state_region", 
-        "edit_customer_id", "edit_delivery_address", "edit_ttl_quantity", "edit_ttl_amount", "edit_discount", "edit_sub_total", "edit_delivery_charges", "edit_payment_type_id", "edit_payment_type_name",
+        "edit_customer_id", "edit_delivery_address", "edit_ttl_quantity", "edit_ttl_amount", "edit_discount", "edit_sub_total", "edit_delivery_charges", "edit_payment_type_id", "edit_payment_type_name", "edit_paid_amount",
         "edit_order_items"
     ]
     for key in edit_keys:

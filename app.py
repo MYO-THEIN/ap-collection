@@ -42,17 +42,17 @@ order_pg = st.Page(
     page="pages/5_Order.py"
 )
 
-# Daily Report
+# Daily Dashboard
 daily_report_pg = st.Page(
-    title="Daily Report",
-    icon="📝",
-    page="pages/6_Daily_Report.py"
+    title="Daily Dashboard",
+    icon="📊",
+    page="pages/6_Daily_Dashboard.py"
 )
 
 # Monthly Report
 monthly_report_pg = st.Page(
     title="Monthly Report",
-    icon="📊",
+    icon="🗓️",
     page="pages/7_Monthly_Report.py"
 )
 

@@ -158,7 +158,8 @@ def add_order(order: dict, order_items: list):
                         sub_total, 
                         delivery_address, 
                         delivery_charges, 
-                        payment_type_id
+                        payment_type_id,
+                        paid_amount
                     )
                     VALUES (
                         :date, 
@@ -170,7 +171,8 @@ def add_order(order: dict, order_items: list):
                         :sub_total, 
                         :delivery_address, 
                         :delivery_charges, 
-                        :payment_type_id
+                        :payment_type_id,
+                        :paid_amount
                     )
                     RETURNING id;
                     """
@@ -185,7 +187,8 @@ def add_order(order: dict, order_items: list):
                     "sub_total": order["sub_total"],
                     "delivery_address": order["delivery_address"], 
                     "delivery_charges": order["delivery_charges"], 
-                    "payment_type_id": order["payment_type_id"]
+                    "payment_type_id": order["payment_type_id"],
+                    "paid_amount": order["paid_amount"]
                 }
             )
 
@@ -228,7 +231,8 @@ def update_order(order: dict, order_items: list):
                         sub_total = :sub_total,
                         delivery_address = :delivery_address,
                         delivery_charges = :delivery_charges,
-                        payment_type_id = :payment_type_id
+                        payment_type_id = :payment_type_id,
+                        paid_amount = :paid_amount
                     WHERE
                         id = :id;
                     """
@@ -244,7 +248,8 @@ def update_order(order: dict, order_items: list):
                     "sub_total": order["sub_total"],
                     "delivery_address": order["delivery_address"], 
                     "delivery_charges": order["delivery_charges"], 
-                    "payment_type_id": order["payment_type_id"]
+                    "payment_type_id": order["payment_type_id"],
+                    "paid_amount": order["paid_amount"]
                 }
             )
 

@@ -27,7 +27,10 @@ def new_customer_submit_callback(data=None):
             st.session_state["search_state_region"] = df.iloc[0]["state_region"]
             st.rerun()
 
-payment_types, stock_categories = None, None
+if "payment_types" in st.session_state:
+    del st.session_state["payment_types"]
+if "stock_categories" in st.session_state:
+    del st.session_state["stock_categories"]
 payment_types = get_payment_types()
 stock_categories = get_stock_categories()
 
@@ -196,6 +199,10 @@ def order_form(is_edit: bool, submit_callback=None):
             ttl_amount += d["amount"]
     st.markdown(f"### 🧮 Total Quantity: {ttl_quantity:,}")
     st.markdown(f"### 🧮 Total Amount: {ttl_amount:,}")
+    paid_amount = st.number_input(
+        label="Paid Amount",
+        value=st.session_state["edit_paid_amount"] if is_edit else (ttl_amount + delivery_charges)
+    )
 
     # Save
     if st.button("✅ Confirm Order" if not is_edit else "💾 Save Order"):
@@ -221,7 +228,8 @@ def order_form(is_edit: bool, submit_callback=None):
                 "sub_total": ttl_amount,
                 "delivery_address": delivery_address,
                 "delivery_charges": delivery_charges,
-                "payment_type_id": payment_type_id
+                "payment_type_id": payment_type_id,
+                "paid_amount": paid_amount
             }
 
             if is_edit:
