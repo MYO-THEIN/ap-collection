@@ -103,6 +103,7 @@ with st.spinner("Searching ..."):
                 st.divider()
         else:
             st.info("No data available 📭")
+            st.divider()
 
 
 def clear_all_inputs():
@@ -141,9 +142,8 @@ def order_form_callback(data=None):
 
 # Add New Form
 if st.button("➕ Add New Order"):
+    clear_all_inputs()
     st.session_state["show_form"] = True
-
-st.divider()
 
 # Edit Form
 if "edit_id" in st.session_state:

@@ -65,7 +65,3 @@ with st.expander("➕ Add New Payment Type"):
 
 if "show_success" in st.session_state and st.session_state["show_success"]:
     st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
-
-# For the selectbox in Order Form
-if "payment_types" in st.session_state:
-    del st.session_state["payment_types"]

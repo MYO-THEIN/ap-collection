@@ -27,17 +27,13 @@ def new_customer_submit_callback(data=None):
             st.session_state["search_state_region"] = df.iloc[0]["state_region"]
             st.rerun()
 
-if "payment_types" in st.session_state:
-    del st.session_state["payment_types"]
-if "stock_categories" in st.session_state:
-    del st.session_state["stock_categories"]
-payment_types = get_payment_types()
-stock_categories = get_stock_categories()
-
 def construct_order_no(dt: date, customer_serial_no: str):
     return f"{dt.strftime('%Y%m%d')}-{datetime.now().strftime('%H%M%S')}-{customer_serial_no}"
 
 def order_form(is_edit: bool, submit_callback=None):
+    payment_types = get_payment_types()
+    stock_categories = get_stock_categories()
+
     col1, col2 = st.columns(2)
 
     # ----- Order Info -----

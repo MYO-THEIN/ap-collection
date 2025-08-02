@@ -45,20 +45,3 @@ def search_customer_modal(sel_id: int=None, sel_serial_no: str=None, sel_name: s
                 st.markdown("-----")
         else:
             st.warning("No data available 📭")
-
-        st.divider()
-
-        if st.button("❌ Close"):
-            if sel_id is None:
-                if "search_id" not in st.session_state:
-                    st.warning("Please select a customer.")
-            else:
-                if "search_id" not in st.session_state:
-                    st.session_state["search_id"] = sel_id
-                    st.session_state["search_serial_no"] = sel_serial_no
-                    st.session_state["search_name"] = sel_name
-                    st.session_state["search_phone"] = sel_phone
-                    st.session_state["search_delivery_address"] = sel_delivery_address
-                    st.session_state["search_city"] = sel_city
-                    st.session_state["search_state_region"] = sel_state_region
-                st.rerun()
