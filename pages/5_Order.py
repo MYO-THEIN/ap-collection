@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime 
 import src.order as controller
 import forms.order as order_form
+import src.utils as utils
 
 st.set_page_config(layout="centered")
 st.title("🛒 Orders")
@@ -55,8 +56,8 @@ with st.spinner("Searching ..."):
 
                 col1, col2 = st.columns([3, 1])
                 with col1:
-                    st.markdown(f"**Date**: {row['date']} | **Customer**: {row['customer_serial_no']} {row['customer_name']}")
-                    st.markdown(f"**Total Quantity**: {row['ttl_quantity']} | **Total Amount**: {row['ttl_amount']:,} | **Delivery Charges**: {row['delivery_charges']}")
+                    st.markdown(f"**Date**: {row['date']} | **Customer**: {row['customer_serial_no']} {row['customer_name']} | **Total Quantity**: {row['ttl_quantity']}")
+                    st.markdown(f"**Total Amount**: {row['ttl_amount']:,} | **Discount**: {row['discount']:,} | **Delivery Charges**: {row['delivery_charges']}")
                     st.markdown(f"**Payment Type**: {row['payment_type_name']} | **Paid Amount**: {row['paid_amount']:,}")
                 
                 with col2:
@@ -83,15 +84,16 @@ with st.spinner("Searching ..."):
                         st.session_state["edit_paid_amount"] = row["paid_amount"]
                         st.session_state["edit_order_items"] = items.drop(columns=["id", "order_id"]).to_dict(orient="records")
 
-                    if st.button(label="🗑️ Delete", key=f"delete_{row['id']}", use_container_width=True):
+                    if st.button(label="🗑️ Delete", key=f"delete_{row['id']}", use_container_width=True, disabled=True):
                         controller.delete_order(row["id"])
                         st.session_state["show_success"] = True
                         st.session_state["show_success_msg"] = "Deleted successfully."
                         st.rerun()
 
                 with st.expander(label="📋 Items"):
+                    items = items.drop(columns=["id", "order_id", "stock_category_id"]).style.format({"amount": "{:,.0f}"})
                     st.dataframe(
-                        data=items.drop(columns=["id", "order_id", "stock_category_id"]),
+                        data=items,
                         column_config={
                             "stock_category_name": st.column_config.Column(label="Stock Category", disabled=True),
                             "quantity": st.column_config.Column(label="Quantity", disabled=True),
@@ -111,7 +113,7 @@ def clear_all_inputs():
     add_new_keys = [
         "date", "order_no",
         "search_id", "search_serial_no", "search_name", "search_phone", "search_delivery_address", "search_city", "search_state_region", 
-        "delivery_address", "ttl_quantity", "ttl_amount", "delivery_charges", "payment_type_id", "payment_type_name", "paid_amount"
+        "delivery_address", "ttl_quantity", "ttl_amount", "discount", "sub_total", "delivery_charges", "payment_type_id", "payment_type_name", "paid_amount"
     ]
     for key in add_new_keys:
         if key in st.session_state:

@@ -98,42 +98,100 @@ def revenue_breakdown():
         st.altair_chart(pie_revenue_by_payment_type, use_container_width=True)
 
     with col2:
+        # By City
         agg_city_state_region = orders_data.groupby(["customer_city", "customer_state_region"]).agg({
             "quantity": "sum",
             "amount": "sum"
         }).reset_index()
         agg_city_state_region.columns = ["City", "State_Region", "Quantity", "Amount"]
 
-        # By City
         st.markdown("🏙️ By City")
+        selected_metric_by_city = st.radio(
+            label="Metric to display:",
+            options=["Quantity", "Amount"],
+            horizontal=True,
+            key="metric_city"
+        )
+
         bar_by_city = alt.Chart(agg_city_state_region) \
-            .transform_fold(fold=["Amount", "Quantity"], as_=["Amount", "Quantity"]) \
             .mark_bar() \
             .encode(
-                x=alt.X("City:N", title="City"),
-                y=alt.Y("Quantity:Q"),
-                color="Amount:N",
-                column="Amount:N",
+                x=alt.X("City", title="City"),
+                y=alt.Y(selected_metric_by_city, title=selected_metric_by_city),
                 tooltip=[
-                    alt.Tooltip("City:N"),
-                    alt.Tooltip("Amount:N"),
-                    alt.Tooltip("Quantity:Q")
-                ]
+                    alt.Tooltip("City", title="City"),
+                    alt.Tooltip(selected_metric_by_city, title=selected_metric_by_city, format=",.0f")
+                ],
+                color=alt.value("#4e79a7") if selected_metric_by_city == "Quantity" else alt.value("#f28e2b")
             )
         st.altair_chart(bar_by_city, use_container_width=True)
 
     with col3:
-        pass
+        # By Country
+        agg_country = orders_data.groupby(["customer_country"]).agg({
+            "quantity": "sum",
+            "amount": "sum"
+        }).reset_index()
+        agg_country.columns = ["Country", "Quantity", "Amount"]
+
+        st.markdown("🏙️ By Country")
+        selected_metric_by_country = st.radio(
+            label="Metric to display:",
+            options=["Quantity", "Amount"],
+            horizontal=True,
+            key="metric_country"
+        )
+
+        bar_by_country = alt.Chart(agg_country) \
+            .mark_bar() \
+            .encode(
+                x=alt.X("Country", title="Country"),
+                y=alt.Y(selected_metric_by_country, title=selected_metric_by_country),
+                tooltip=[
+                    alt.Tooltip("Country", title="Country"),
+                    alt.Tooltip(selected_metric_by_country, title=selected_metric_by_country, format=",.0f")
+                ],
+                color=alt.value("#4e79a7") if selected_metric_by_country == "Quantity" else alt.value("#f28e2b")
+            )
+        st.altair_chart(bar_by_country, use_container_width=True)
 
     st.divider()
+
+
+# Order Summary
+def order_summary():
+    st.markdown("📋 Order Summary")
+
+    summary_data = orders_data.copy()
+    summary_data.drop_duplicates(subset=["order_no"], inplace=True)
+    summary_data["customer"] = summary_data["customer_serial_no"] + " " + summary_data["customer_name"]
+    summary_data = summary_data[["order_no", "customer", "ttl_quantity", "payment_type_name", "paid_amount"]]
+    summary_data.columns = ["Order No", "Customer", "Quantity", "Payment Type", "Paid Amount"]
+
+    summary_chart = alt.Chart(summary_data) \
+        .mark_bar() \
+        .encode(
+            y=alt.Y("Order No", title="Order No", sort="-x"),
+            x=alt.X("Paid Amount", title="Paid Amount"),
+            color=alt.Color("Payment Type"),
+            tooltip=[
+                alt.Tooltip("Order No", title="Order No"),
+                alt.Tooltip("Customer", title="Customer"),
+                alt.Tooltip("Quantity", title="Quantity"),
+                alt.Tooltip("Payment Type", title="Payment Type"),
+                alt.Tooltip("Paid Amount", title="Paid Amount", format=",.0f")
+            ]
+        )
+    st.altair_chart(summary_chart, use_container_width=True)
 
 
 if orders_data.shape[0]:
     st.title("📊 Daily Dashboard")
     st.markdown(f"### Date: `{filtered_date}`")
-
+    
     kpi_metrics()
     quantity_and_revenue_by_stock_category()
     revenue_breakdown()
+    order_summary()
 else:
     st.info("No data available 📭")

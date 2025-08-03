@@ -109,13 +109,6 @@ def order_form(is_edit: bool, submit_callback=None):
             max_chars=200
         )
 
-        delivery_charges = st.number_input(
-            label="Delivery Charges",
-            min_value=0, 
-            max_value=10000,
-            value=st.session_state["edit_delivery_charges"] if is_edit else 0
-        )
-
         payment_type_name = st.selectbox(
             label="Payment Type",
             options=payment_types["name"].tolist(),
@@ -141,7 +134,7 @@ def order_form(is_edit: bool, submit_callback=None):
             quantity = st.number_input("Quantity", min_value=1, value=1, format="%d")
             amount = st.number_input("Amount", min_value=0, format="%d")
 
-            add_detail = st.form_submit_button("Add Item")
+            add_detail = st.form_submit_button("🛒 Add Item")
             if add_detail:
                 if stock_category_name and quantity and amount:
                     item = {
@@ -163,24 +156,26 @@ def order_form(is_edit: bool, submit_callback=None):
     # ----- Items List -----
     st.subheader("📋 Order Items")
     if ("order_items" in st.session_state and st.session_state["order_items"]) or ("edit_order_items" in st.session_state and st.session_state["edit_order_items"]):
-        df = st.data_editor(
-            data=st.session_state["order_items"] if not is_edit else st.session_state["edit_order_items"],
-            column_config={
-                "stock_category_id": st.column_config.Column(label="Stock Category ID", disabled=True),
-                "stock_category_name": st.column_config.Column(label="Stock Category", disabled=True),
-                "quantity": st.column_config.NumberColumn(label="Quantity", step="1"),
-                "amount": st.column_config.NumberColumn(label="Amount", step="1000")
-            },
-            use_container_width=True,
-            num_rows="dynamic",
-            hide_index=False,
-            key="order_items_data_editor"
-        )
+        with st.container():
+            df = st.data_editor(
+                data=st.session_state["order_items"] if not is_edit else st.session_state["edit_order_items"],
+                column_config={
+                    "stock_category_id": st.column_config.Column(label="Stock Category ID", disabled=True),
+                    "stock_category_name": st.column_config.Column(label="Stock Category", disabled=True),
+                    "quantity": st.column_config.NumberColumn(label="Quantity", step="1"),
+                    "amount": st.column_config.NumberColumn(label="Amount", step="1000")
+                },
+                use_container_width=True,
+                key="order_items_data_editor",
+            )
 
-        if is_edit:
-            st.session_state["edit_order_items"] = df
-        else:
-            st.session_state["order_items"] = df
+            _, _, btn_col = st.columns([6, 1, 2])
+            with btn_col:
+                if st.button("🔄 Update Item"):
+                    if is_edit:
+                        st.session_state["edit_order_items"] = df
+                    else:
+                        st.session_state["order_items"] = df
     else:
         st.info("No items added yet.")
 
@@ -195,9 +190,23 @@ def order_form(is_edit: bool, submit_callback=None):
             ttl_amount += d["amount"]
     st.markdown(f"### 🧮 Total Quantity: {ttl_quantity:,}")
     st.markdown(f"### 🧮 Total Amount: {ttl_amount:,}")
+    
+    discount = st.number_input(
+        label="Discount",
+        min_value=0,
+        value=st.session_state["edit_discount"] if is_edit else 0
+    )
+
+    delivery_charges = st.number_input(
+        label="Delivery Charges",
+        min_value=0, 
+        max_value=10000,
+        value=st.session_state["edit_delivery_charges"] if is_edit else 0
+    )
+    
     paid_amount = st.number_input(
         label="Paid Amount",
-        value=st.session_state["edit_paid_amount"] if is_edit else (ttl_amount + delivery_charges)
+        value=ttl_amount - discount + delivery_charges
     )
 
     # Save
@@ -220,8 +229,8 @@ def order_form(is_edit: bool, submit_callback=None):
                 "customer_id": st.session_state["search_id"],
                 "ttl_quantity": ttl_quantity,
                 "ttl_amount": ttl_amount,
-                "discount": 0,
-                "sub_total": ttl_amount,
+                "discount": discount,
+                "sub_total": ttl_amount - discount,
                 "delivery_address": delivery_address,
                 "delivery_charges": delivery_charges,
                 "payment_type_id": payment_type_id,
