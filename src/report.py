@@ -9,20 +9,14 @@ if "postgresql" not in st.session_state:
 postgresql = st.session_state["postgresql"]
 
 
-def get_orders(dt: date):
-    from_date = dt.strftime("%Y-%m-%d") + " 00:00:00"
-    to_date = dt.strftime("%Y-%m-%d") + " 23:59:59"
-
+def get_orders(from_date: date, to_date: date):
     with postgresql.session as session:
         result = session.execute(
             text(
                 """
-                SELECT 
-                    * 
-                FROM 
-                    v_orders_overall
-                WHERE
-                    date BETWEEN :from_date AND :to_date;
+                SELECT * 
+                FROM v_orders_overall
+                WHERE date BETWEEN :from_date AND :to_date;
                 """
             ),
             {
