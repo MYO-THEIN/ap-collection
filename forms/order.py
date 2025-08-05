@@ -109,15 +109,6 @@ def order_form(is_edit: bool, submit_callback=None):
             max_chars=200
         )
 
-        payment_type_name = st.selectbox(
-            label="Payment Type",
-            options=payment_types["name"].tolist(),
-            accept_new_options=False,
-            index=payment_types["name"].tolist().index(st.session_state["edit_payment_type_name"]) if is_edit else payment_types["name"].tolist().index("KBZ Pay")
-        )
-        if payment_type_name:
-            payment_type_id = int(payment_types[payment_types["name"] == payment_type_name].iloc[0]["id"])
-
     # ----- Item Info -----
     with col2:
         st.subheader("🏷️ Item Info")
@@ -196,18 +187,25 @@ def order_form(is_edit: bool, submit_callback=None):
         min_value=0,
         value=st.session_state["edit_discount"] if is_edit else 0
     )
-
     delivery_charges = st.number_input(
         label="Delivery Charges",
         min_value=0, 
         max_value=10000,
         value=st.session_state["edit_delivery_charges"] if is_edit else 0
     )
-    
     paid_amount = st.number_input(
         label="Paid Amount",
         value=ttl_amount - discount + delivery_charges
     )
+    
+    payment_type_name = st.selectbox(
+        label="Payment Type",
+        options=payment_types["name"].tolist(),
+        accept_new_options=False,
+        index=payment_types["name"].tolist().index(st.session_state["edit_payment_type_name"]) if is_edit else payment_types["name"].tolist().index("KBZ Pay")
+    )
+    if payment_type_name:
+        payment_type_id = int(payment_types[payment_types["name"] == payment_type_name].iloc[0]["id"])
 
     # Save
     if st.button("✅ Confirm Order" if not is_edit else "💾 Save Order"):
