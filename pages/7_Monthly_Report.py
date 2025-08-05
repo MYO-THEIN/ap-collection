@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import altair as alt
+import plotly.express as px 
 from datetime import datetime, date
 import calendar
 from src.report import get_orders
@@ -97,43 +98,42 @@ def daily_quantity_and_revenue():
 
 
 # Stock Category Insights
-def stock_category_insights():
+def quantity_and_amount_by_stock_category():
     agg_stock_category = orders_data.groupby(["stock_category_name"]).agg({
         "quantity": "sum",
         "amount": "sum"
     }).reset_index()
-    agg_stock_category.columns = ["Stock Category", "Quantity", "Revenue"]
+    agg_stock_category.columns = ["Stock Category", "Quantity", "Amount"]
 
     col1, col2 = st.columns(2)
     with col1:  
         # Quantity - Donut Chart
         st.markdown("📦 Quantity by Stock Category")
-        pie_quantity_by_stock_category = alt.Chart(agg_stock_category) \
-            .mark_arc(innerRadius=50) \
-            .encode(
-                theta="Quantity",
-                color="Stock Category",
-                tooltip=[
-                    alt.Tooltip("Stock Category", title="Stock Category"),
-                    alt.Tooltip("Quantity", title="Quantity")
-                ]
-            )
-        st.altair_chart(pie_quantity_by_stock_category, use_container_width=True)
+        pie_quantity_by_stock_category = px.pie(
+            data_frame=agg_stock_category, 
+            names="Stock Category", 
+            values="Quantity",
+            hole=0.4
+        ) \
+        .update_traces(
+            hovertemplate="<b>%{label}</b><br>Quantity: %{value}"
+        )
+        st.plotly_chart(pie_quantity_by_stock_category, use_container_width=True)
     
     with col2:
-        # Revenue - Bar Chart
-        st.markdown("💰 Revenue by Stock Category")
-        bar_revenue_by_stock_category = alt.Chart(agg_stock_category) \
-            .mark_bar() \
-            .encode(
-                x=alt.X("Stock Category", title="Stock Category"),
-                y=alt.Y("Revenue", title="Revenue"),
-                tooltip=[
-                    alt.Tooltip("Stock Category", title="Stock Category"),
-                    alt.Tooltip("Revenue", title="Revenue", format=",.0f")
-                ]
-            )
-        st.altair_chart(bar_revenue_by_stock_category, use_container_width=True)
+        # Amount - Bar Chart
+        st.markdown("💰 Amount by Stock Category")
+        bar_amount_by_stock_category = px.bar(
+            data_frame=agg_stock_category.sort_values(by="Amount", ascending=False), 
+            x="Stock Category",
+            y="Amount",
+            color="Stock Category"
+        ) \
+        .update_layout(yaxis_tickformat=",.0f") \
+        .update_traces(
+            hovertemplate="<b>%{label}</b><br>Amount: %{value}"
+        )
+        st.plotly_chart(bar_amount_by_stock_category, use_container_width=True)
 
     st.divider()
 
@@ -143,22 +143,78 @@ def payment_type_insights():
     agg_payment_type = orders_data.groupby(["date", "payment_type_name"]).agg({
         "paid_amount": "sum"
     }).reset_index()
-    agg_payment_type.columns = ["Date", "Payment Type", "Revenue"]
+
+    # percent contribution
+    agg_payment_type["total"] = agg_payment_type.groupby("date")["paid_amount"].transform("sum")
+    agg_payment_type["percent"] = agg_payment_type["paid_amount"] / agg_payment_type["total"] * 100
+
+    agg_payment_type.columns = ["Date", "Payment Type", "Revenue", "Total", "Percent"]
+
 
     st.markdown("💳 Revenue by Payment Type")
-    line_payment_type = alt.Chart(agg_payment_type) \
-        .mark_line(point=True, interpolate="monotone") \
-        .encode(
-            x=alt.X("Date", title="Date", axis=alt.Axis(format="%Y-%m-%d")),
-            y=alt.Y("Revenue", title="Revenue"),
-            color="Payment Type",
-            tooltip=[
-                alt.Tooltip("Date", title="Date"),
-                alt.Tooltip("Payment Type", title="Payment Type"),
-                alt.Tooltip("Revenue", title="Revenue", format=",.0f")
-            ]
+    # line_payment_type = alt.Chart(agg_payment_type) \
+    #     .mark_line(point=True, interpolate="monotone") \
+    #     .encode(
+    #         x=alt.X("Date", title="Date", axis=alt.Axis(format="%Y-%m-%d")),
+    #         y=alt.Y("Revenue", title="Revenue"),
+    #         color="Payment Type",
+    #         tooltip=[
+    #             alt.Tooltip("Date", title="Date"),
+    #             alt.Tooltip("Payment Type", title="Payment Type"),
+    #             alt.Tooltip("Revenue", title="Revenue", format=",.0f")
+    #         ]
+    #     )
+    # st.altair_chart(line_payment_type, use_container_width=True)
+
+    # Heatmap
+    heat_data = agg_payment_type.pivot(index="Date", columns="Payment Type", values="Revenue").fillna(0)
+    fig_heatmap = px.imshow(
+        heat_data.T,
+        aspect="auto",
+        labels=dict(x="Date", y="Payment Type", color="Revenue")
+    )
+    st.plotly_chart(fig_heatmap, use_container_width=True)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        # Sunburst Chart
+        fig_sb = px.sunburst(
+            data_frame=agg_payment_type,
+            path=["Payment Type", "Date"],
+            values="Revenue"
         )
-    st.altair_chart(line_payment_type, use_container_width=True)
+        st.plotly_chart(fig_sb, use_container_width=True)
+
+    with col2:
+        # Treemap
+        agg = agg_payment_type.groupby("Payment Type")["Revenue"].sum().reset_index()
+        fig_treemap = px.treemap(
+            agg,
+            path=["Payment Type"],
+            values="Revenue"
+        )
+        st.plotly_chart(fig_treemap, use_container_width=True)
+
+    # Stacked Bar Chart
+    stack_order = (
+        agg_payment_type.groupby("Payment Type")["Percent"].mean().sort_values(ascending=False).index.tolist()
+    )
+
+    fig_stacked_bar = px.bar(
+        data_frame=agg_payment_type,
+        x="Date",
+        y="Percent",
+        color="Payment Type",
+        custom_data=["Date", "Payment Type", "Revenue", "Percent"],
+        category_orders={"Payment Type": stack_order}
+    ) \
+    .update_layout(
+        barmode="stack"
+    ) \
+    .update_traces(
+        hovertemplate="Date: %{customdata[0]}<br>Payment Type: %{customdata[1]}<br>Revenue: %{customdata[2]:,}<br>Percent: %{customdata[3]:.2f}%",
+    )
+    st.plotly_chart(fig_stacked_bar, use_container_width=True)
 
     st.divider()
 
@@ -169,7 +225,7 @@ if orders_data.shape[0]:
 
     kpi_metrics()
     daily_quantity_and_revenue()
-    stock_category_insights()
+    quantity_and_amount_by_stock_category()
     payment_type_insights()
 else:
     st.info("No data available 📭")
