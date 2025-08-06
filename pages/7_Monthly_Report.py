@@ -65,7 +65,7 @@ def daily_quantity_and_revenue():
         bar_daily_quantity = alt.Chart(agg_daily_quantity) \
             .mark_bar(color="#4daf4a") \
             .encode(
-                x=alt.X("Date", title="Date", axis=alt.Axis(format="%Y-%m-%d")),
+                x=alt.X("Date", title="Date", axis=alt.Axis(format="%m-%d")),
                 y=alt.Y("Quantity", title="Quantity"),
                 tooltip=[
                     alt.Tooltip("Date", title="Date"),
@@ -85,7 +85,7 @@ def daily_quantity_and_revenue():
         bar_daily_revenue = alt.Chart(agg_daily_revenue) \
             .mark_bar(color="#d62728") \
             .encode(
-                x=alt.X("Date", title="Date", axis=alt.Axis(format="%Y-%m-%d")),
+                x=alt.X("Date", title="Date", axis=alt.Axis(format="%m-%d")),
                 y=alt.Y("Revenue", title="Revenue"),
                 tooltip=[
                     alt.Tooltip("Date", title="Date"),
@@ -140,7 +140,7 @@ def quantity_and_amount_by_stock_category():
 
 # Payment Type Insights
 def payment_type_insights():
-    agg_payment_type = orders_data.groupby(["date", "payment_type_name"]).agg({
+    agg_payment_type = orders_data.drop_duplicates(subset=["order_no"]).groupby(["date", "payment_type_name"]).agg({
         "paid_amount": "sum"
     }).reset_index()
 
@@ -148,73 +148,63 @@ def payment_type_insights():
     agg_payment_type["total"] = agg_payment_type.groupby("date")["paid_amount"].transform("sum")
     agg_payment_type["percent"] = agg_payment_type["paid_amount"] / agg_payment_type["total"] * 100
 
-    agg_payment_type.columns = ["Date", "Payment Type", "Revenue", "Total", "Percent"]
+    # formatted date
+    agg_payment_type["date"] = pd.to_datetime(agg_payment_type["date"])
+    agg_payment_type["formatted_date"] = agg_payment_type["date"].dt.strftime("%m-%d")
 
+    agg_payment_type.columns = ["Date", "Payment Type", "Revenue", "Total", "Percent", "Formatted Date"]
 
     st.markdown("💳 Revenue by Payment Type")
-    # line_payment_type = alt.Chart(agg_payment_type) \
-    #     .mark_line(point=True, interpolate="monotone") \
-    #     .encode(
-    #         x=alt.X("Date", title="Date", axis=alt.Axis(format="%Y-%m-%d")),
-    #         y=alt.Y("Revenue", title="Revenue"),
-    #         color="Payment Type",
-    #         tooltip=[
-    #             alt.Tooltip("Date", title="Date"),
-    #             alt.Tooltip("Payment Type", title="Payment Type"),
-    #             alt.Tooltip("Revenue", title="Revenue", format=",.0f")
-    #         ]
-    #     )
-    # st.altair_chart(line_payment_type, use_container_width=True)
-
-    # Heatmap
-    heat_data = agg_payment_type.pivot(index="Date", columns="Payment Type", values="Revenue").fillna(0)
-    fig_heatmap = px.imshow(
-        heat_data.T,
-        aspect="auto",
-        labels=dict(x="Date", y="Payment Type", color="Revenue")
-    )
-    st.plotly_chart(fig_heatmap, use_container_width=True)
-
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns([1, 1, 2])
     with col1:
         # Sunburst Chart
-        fig_sb = px.sunburst(
+        sunburst_payment_type = px.sunburst(
             data_frame=agg_payment_type,
-            path=["Payment Type", "Date"],
-            values="Revenue"
+            path=["Payment Type", "Formatted Date"],
+            values="Revenue",
+            custom_data=["Formatted Date", "Payment Type", "Revenue"]
+        ) \
+        .update_traces(
+            hovertemplate=(
+                "<b>Date:</b> %{customdata[0]}<br>" +
+                "<b>Payment Type:</b> %{customdata[1]}<br>" +
+                "<b>Revenue:</b> %{customdata[2]:,.0f}<br>" +
+                "<extra></extra>"
+            )
         )
-        st.plotly_chart(fig_sb, use_container_width=True)
+        st.plotly_chart(sunburst_payment_type, use_container_width=True)
 
     with col2:
         # Treemap
         agg = agg_payment_type.groupby("Payment Type")["Revenue"].sum().reset_index()
-        fig_treemap = px.treemap(
+        treemap_payment_type = px.treemap(
             agg,
             path=["Payment Type"],
             values="Revenue"
         )
-        st.plotly_chart(fig_treemap, use_container_width=True)
+        st.plotly_chart(treemap_payment_type, use_container_width=True)
 
-    # Stacked Bar Chart
-    stack_order = (
-        agg_payment_type.groupby("Payment Type")["Percent"].mean().sort_values(ascending=False).index.tolist()
-    )
+    with col3:
+        # Stacked Bar Chart
+        stack_order = (
+            agg_payment_type.groupby("Payment Type")["Percent"].mean().sort_values(ascending=False).index.tolist()
+        )
 
-    fig_stacked_bar = px.bar(
-        data_frame=agg_payment_type,
-        x="Date",
-        y="Percent",
-        color="Payment Type",
-        custom_data=["Date", "Payment Type", "Revenue", "Percent"],
-        category_orders={"Payment Type": stack_order}
-    ) \
-    .update_layout(
-        barmode="stack"
-    ) \
-    .update_traces(
-        hovertemplate="Date: %{customdata[0]}<br>Payment Type: %{customdata[1]}<br>Revenue: %{customdata[2]:,}<br>Percent: %{customdata[3]:.2f}%",
-    )
-    st.plotly_chart(fig_stacked_bar, use_container_width=True)
+        stacked_bar_payment_type = px.bar(
+            data_frame=agg_payment_type,
+            x="Date",
+            y="Percent",
+            color="Payment Type",
+            custom_data=["Date", "Payment Type", "Revenue", "Percent"],
+            category_orders={"Payment Type": stack_order}
+        ) \
+        .update_layout(
+            barmode="stack"
+        ) \
+        .update_traces(
+            hovertemplate="Date: %{customdata[0]}<br>Payment Type: %{customdata[1]}<br>Revenue: %{customdata[2]:,}<br>Percent: %{customdata[3]:.2f}%",
+        )
+        st.plotly_chart(stacked_bar_payment_type, use_container_width=True)
 
     st.divider()
 
