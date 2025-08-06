@@ -1,9 +1,14 @@
 import streamlit as st
+import numpy as np
 
 @st.cache_resource
 def get_postgresql_connection():
     conn = st.connection(name="postgresql", type="sql")
     return conn
+
+
+def percentage_change(current, previous):
+    return ((current - previous) / previous * 100) if previous else 100
 
 
 @st.dialog("Confirm Action")

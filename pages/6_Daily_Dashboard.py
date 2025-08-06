@@ -3,6 +3,7 @@ import numpy as np
 import plotly.express as px
 from datetime import datetime, date, timedelta
 from src.report import get_orders
+import src.utils as utils
 
 st.set_page_config(layout="wide")
 
@@ -25,19 +26,13 @@ if filtered_date:
     prev_data = get_orders(from_date, to_date)
 
 
-def percentage_change(current, previous):
-    return ((current - previous) / previous * 100) if previous else np.nan
-
-
 # KPIs
 def kpi_metrics():
     # Previous Day
     prev_orders = prev_data["id"].nunique() if prev_data.shape[0] else 0
     prev_quantity = prev_data["quantity"].sum() if prev_data.shape[0] else 0
     prev_revenue = prev_data.groupby("id")["paid_amount"].first().sum() if prev_data.shape[0] else 0
-    prev_delivery_charges = prev_data.groupby("id")["delivery_charges"].first().sum() if prev_data.shape[0] else 0
-    prev_discount = prev_data.groupby("id")["discount"].first().sum() if prev_data.shape[0] else 0
-
+    
     # Current Day
     total_orders = orders_data["id"].nunique()
     total_quantity = orders_data["quantity"].sum()
@@ -46,9 +41,9 @@ def kpi_metrics():
     total_discount = orders_data.groupby("id")["discount"].first().sum()
 
     col1, col2, col3, col4, col5 = st.columns(5)
-    col1.metric("🧾 Orders", total_orders, delta=f"{percentage_change(total_orders, prev_orders):.2f}%")
-    col2.metric("📦 Quantity", total_quantity, delta=f"{percentage_change(total_quantity, prev_quantity):.2f}%")
-    col3.metric("💰 Revenue", f"{total_revenue:,}", delta=f"{percentage_change(total_revenue, prev_revenue):.2f}%")
+    col1.metric("🧾 Orders", total_orders, delta=f"{utils.percentage_change(total_orders, prev_orders):.2f}%")
+    col2.metric("📦 Quantity", total_quantity, delta=f"{utils.percentage_change(total_quantity, prev_quantity):.2f}%")
+    col3.metric("💰 Revenue", f"{total_revenue:,}", delta=f"{utils.percentage_change(total_revenue, prev_revenue):.2f}%")
     col4.metric("🚚 Delivery Charges", f"{total_delivery_charges:,}")
     col5.metric("💸 Discount", f"{total_discount:,}")
     st.divider()
@@ -73,7 +68,10 @@ def quantity_and_amount_by_stock_category():
             hole=0.4
         ) \
         .update_traces(
-            hovertemplate="<b>%{label}</b><br>Quantity: %{value}"
+            hovertemplate=(
+                "<b>%{label}</b><br>"
+                "Quantity: %{value}"
+            )
         )
         st.plotly_chart(pie_quantity_by_stock_category, use_container_width=True)
     
@@ -88,7 +86,10 @@ def quantity_and_amount_by_stock_category():
         ) \
         .update_layout(yaxis_tickformat=",.0f") \
         .update_traces(
-            hovertemplate="<b>%{label}</b><br>Amount: %{value}"
+            hovertemplate=(
+                "<b>%{label}</b><br>"
+                "Amount: %{value}"
+            )
         )
         st.plotly_chart(bar_amount_by_stock_category, use_container_width=True)
 
@@ -113,7 +114,10 @@ def revenue_breakdown():
             hole=0.4
         ) \
         .update_traces(
-            hovertemplate="<b>%{label}</b><br>Revenue: %{value}"
+            hovertemplate=(
+                "<b>%{label}</b><br>"
+                "Revenue: %{value}"
+            )
         )
         st.plotly_chart(pie_revenue_by_payment_type, use_container_width=True)
 
@@ -148,7 +152,10 @@ def revenue_breakdown():
                 color="City" if option_city_country == "City" else "Country"
             ) \
             .update_traces(
-                hovertemplate="<b>%{label}</b><br>Quantity: %{value}"
+                hovertemplate=(
+                    "<b>%{label}</b><br>"
+                    "Quantity: %{value}"
+                )
             )
             st.plotly_chart(bar_quantity, use_container_width=True)
 
@@ -162,22 +169,25 @@ def revenue_breakdown():
             ) \
             .update_layout(yaxis_tickformat=",.0f") \
             .update_traces(
-                hovertemplate="<b>%{label}</b><br>Amount: %{value}"
+                hovertemplate=(
+                    "<b>%{label}</b><br>"
+                    "Amount: %{value}"
+                )
             )
             st.plotly_chart(bar_amount, use_container_width=True)
 
     st.divider()
 
 
-# Order Summary
-def order_summary():
+# Orders Summary
+def orders_summary():
     summary_data = orders_data.copy()
     summary_data.drop_duplicates(subset=["order_no"], inplace=True)
     summary_data["customer"] = summary_data["customer_serial_no"] + " " + summary_data["customer_name"]
     summary_data = summary_data[["order_no", "customer", "ttl_quantity", "payment_type_name", "paid_amount"]]
     summary_data.columns = ["Order No", "Customer", "Quantity", "Payment Type", "Paid Amount"]
 
-    st.markdown("📋 Order Summary")
+    st.markdown("📋 Orders Summary")
     bar_summary = px.bar(
         data_frame=summary_data.sort_values(by="Paid Amount", ascending=True), 
         x="Paid Amount",
@@ -185,9 +195,15 @@ def order_summary():
         color="Payment Type",
         custom_data=["Order No", "Customer", "Quantity", "Payment Type", "Paid Amount"]
     ) \
-    .update_layout(yaxis_tickformat=",.0f") \
+    .update_layout(xaxis_tickformat=",.0f") \
     .update_traces(
-        hovertemplate="Order No: %{customdata[0]}<br>Customer: %{customdata[1]}<br>Quantity: %{customdata[2]}<br>Payment Type: %{customdata[3]}<br>Paid Amount: %{customdata[4]:,}"
+        hovertemplate=(
+            "Order No: %{customdata[0]}<br>"
+            "Customer: %{customdata[1]}<br>"
+            "Quantity: %{customdata[2]}<br>"
+            "Payment Type: %{customdata[3]}<br>"
+            "Paid Amount: %{customdata[4]:,}"
+        )
     )
     st.plotly_chart(bar_summary, use_container_width=True)
 
@@ -199,6 +215,6 @@ if orders_data.shape[0]:
     kpi_metrics()
     quantity_and_amount_by_stock_category()
     revenue_breakdown()
-    order_summary()
+    orders_summary()
 else:
     st.info("No data available 📭")
