@@ -315,7 +315,7 @@ def this_month_vs_last_month():
     if not prev_data.shape[0]:
         return
 
-    st.markdown("🆚 This Month vs Last Month: What's up? What's down?")
+    st.markdown("🆚 This Month vs Last Month")
 
     agg_prev_month, agg_current_month = pd.DataFrame(), pd.DataFrame()
     if prev_data.shape[0]:
@@ -408,18 +408,100 @@ def this_month_vs_last_month():
 
 # Summary DataFrames
 def summary_dataframes():
+    st.markdown("📋 Monthly Summary")
+    
     tab1, tab2, tab3 = st.tabs(["Orders", "Payment Types", "Stock Categories"])
     with tab1:
-        st.markdown("Daily data by Orders")
-        st.write("This is the Sales tab content.")
+        summary_df = orders_data \
+            .drop_duplicates(subset=["order_no"]) \
+            .groupby(["date"]) \
+            .agg(
+                orders=("order_no", "count"),
+                quantity=("ttl_quantity", "sum"),
+                discount=("discount", "sum"),
+                delivery_charges=("delivery_charges", "sum"),
+                paid_amount=("paid_amount", "sum")
+            ) \
+            .reset_index()
+
+        summary_df.columns = ["Date", "Orders", "Quantity", "Discount", "Delivery Charges", "Paid Amount"]
+
+        # format the numbers
+        summary_df = summary_df.style.format({
+            "Discount": "{:,.0f}",
+            "Delivery Charges": "{:,.0f}",
+            "Paid Amount": "{:,.0f}"
+        })
+
+        st.dataframe(
+            data=summary_df,
+            column_config={
+                "Date": st.column_config.DateColumn(label="Date", disabled=True, format="MM-DD"),
+                "Orders": st.column_config.Column(label="Orders", disabled=True),
+                "Quantity": st.column_config.Column(label="Quantity", disabled=True),
+                "Discount": st.column_config.NumberColumn(label="Discount", disabled=True),
+                "Delivery Charges": st.column_config.NumberColumn(label="Delivery Charges", disabled=True),
+                "Paid Amount": st.column_config.NumberColumn(label="Paid Amount", disabled=True)
+            },
+            hide_index=True, 
+            use_container_width=True
+        )
 
     with tab2:
-        st.markdown("Daily data by Payment Types")
-        st.write("This is the Inventory tab content.")
+        summary_df = orders_data \
+            .drop_duplicates(subset=["order_no"]) \
+            .groupby(["date", "payment_type_name"]) \
+            .agg(
+                paid_amount=("paid_amount", "sum")
+            ) \
+            .reset_index()
+
+        summary_df.columns = ["Date", "Payment Type", "Paid Amount"]
+
+        # format the numbers
+        summary_df = summary_df.style.format({
+            "Paid Amount": "{:,.0f}"
+        })
+
+        st.dataframe(
+            data=summary_df,
+            column_config={
+                "Date": st.column_config.DateColumn(label="Date", disabled=True, format="MM-DD"),
+                "Payment Type": st.column_config.Column(label="Payment Type", disabled=True),
+                "Paid Amount": st.column_config.NumberColumn(label="Paid Amount", disabled=True)
+            },
+            hide_index=True, 
+            use_container_width=True
+        )
 
     with tab3:
-        st.markdown("Daily data by Stock Categories")
-        st.write("This is the Revenue tab content.")
+        summary_df = orders_data \
+            .drop_duplicates(subset=["order_no"]) \
+            .groupby(["date", "stock_category_name"]) \
+            .agg(
+                quantity=("quantity", "sum"),
+                amount=("amount", "sum")
+            ) \
+            .reset_index()
+
+        summary_df.columns = ["Date", "Stock Category", "Quantity", "Amount"]
+
+        # format the numbers
+        summary_df = summary_df.style.format({
+            "Amount": "{:,.0f}"
+        })
+
+        st.dataframe(
+            data=summary_df,
+            column_config={
+                "Date": st.column_config.DateColumn(label="Date", disabled=True, format="MM-DD"),
+                "Stock Category": st.column_config.Column(label="Stock Category", disabled=True),
+                "Quantity": st.column_config.Column(label="Quantity", disabled=True),
+                "Amount": st.column_config.NumberColumn(label="Amount", disabled=True)
+            },
+            hide_index=True, 
+            use_container_width=True
+        )
 
 
 if orders_data.shape[0]:
