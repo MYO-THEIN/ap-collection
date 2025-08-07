@@ -179,15 +179,15 @@ def revenue_breakdown():
     st.divider()
 
 
-# Orders Summary
-def orders_summary():
+# Daily Summary
+def daily_summary():
     summary_data = orders_data.copy()
     summary_data.drop_duplicates(subset=["order_no"], inplace=True)
     summary_data["customer"] = summary_data["customer_serial_no"] + " " + summary_data["customer_name"]
     summary_data = summary_data[["order_no", "customer", "ttl_quantity", "payment_type_name", "paid_amount"]]
     summary_data.columns = ["Order No", "Customer", "Quantity", "Payment Type", "Paid Amount"]
 
-    st.markdown("📋 Orders Summary")
+    st.markdown("📋 Daily Summary")
     bar_summary = px.bar(
         data_frame=summary_data.sort_values(by="Paid Amount", ascending=True), 
         x="Paid Amount",
@@ -215,6 +215,6 @@ if orders_data.shape[0]:
     kpi_metrics()
     quantity_and_amount_by_stock_category()
     revenue_breakdown()
-    orders_summary()
+    daily_summary()
 else:
     st.info("No data available 📭")

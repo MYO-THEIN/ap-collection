@@ -7,7 +7,8 @@ st.set_page_config(page_title="AP Collection", page_icon="🌴")
 about_us_pg = st.Page(
     title="About Us",
     icon="🌟",
-    page="pages/1_About_Us.py"
+    page="pages/1_About_Us.py",
+    default=True
 )
 
 # Payment Type

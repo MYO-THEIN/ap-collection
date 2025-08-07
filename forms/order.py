@@ -122,8 +122,11 @@ def order_form(is_edit: bool, submit_callback=None):
             if stock_category_name:
                 stock_category_id = int(stock_categories[stock_categories["name"] == stock_category_name].iloc[0]["id"])
 
+            description = st.text_input("Description", max_chars=100)
             quantity = st.number_input("Quantity", min_value=1, value=1, format="%d")
-            amount = st.number_input("Amount", min_value=0, format="%d")
+            price = st.number_input("Price", min_value=0, step=1000, format="%d")
+            extra = st.number_input("Extra", min_value=0, step=1000, format="%d")
+            amount = st.number_input("Amount", value=(quantity * price) + extra, step=1000, format="%d")
 
             add_detail = st.form_submit_button("🛒 Add Item")
             if add_detail:
@@ -131,7 +134,10 @@ def order_form(is_edit: bool, submit_callback=None):
                     item = {
                         "stock_category_id": stock_category_id,
                         "stock_category_name": stock_category_name,
+                        "description": description,
                         "quantity": quantity,
+                        "price": price,
+                        "extra": extra,
                         "amount": amount
                     }
 
@@ -153,7 +159,10 @@ def order_form(is_edit: bool, submit_callback=None):
                 column_config={
                     "stock_category_id": st.column_config.Column(label="Stock Category ID", disabled=True),
                     "stock_category_name": st.column_config.Column(label="Stock Category", disabled=True),
+                    "description": st.column_config.TextColumn(label="Description", max_chars=100),
                     "quantity": st.column_config.NumberColumn(label="Quantity", step="1"),
+                    "price": st.column_config.NumberColumn(label="Price", step="1000"),
+                    "extra": st.column_config.NumberColumn(label="Extra", step="1000"),
                     "amount": st.column_config.NumberColumn(label="Amount", step="1000")
                 },
                 use_container_width=True,

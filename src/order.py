@@ -10,8 +10,9 @@ postgresql = st.session_state["postgresql"]
 
 
 def get_orders(dt: date, search_term: str=""):
-    from_date = dt.strftime("%Y-%m-%d") + " 00:00:00"
-    to_date = dt.strftime("%Y-%m-%d") + " 23:59:59"
+    if dt is not None:
+        from_date = dt.strftime("%Y-%m-%d") + " 00:00:00"
+        to_date = dt.strftime("%Y-%m-%d") + " 23:59:59"
 
     with postgresql.session as session:
         if search_term:
@@ -23,23 +24,20 @@ def get_orders(dt: date, search_term: str=""):
                     FROM 
                         v_orders
                     WHERE
-                        (date BETWEEN :from_date AND :to_date)
-                        AND 
-                        (order_no ILIKE :search_term
+                        order_no ILIKE :search_term
                         OR customer_serial_no ILIKE :search_term
                         OR customer_name ILIKE :search_term
                         OR customer_phone ILIKE :search_term
                         OR customer_city ILIKE :search_term
                         OR customer_state_region ILIKE :search_term
                         OR customer_country ILIKE :search_term
-                        OR payment_type_name ILIKE :search_term)
+                        OR payment_type_name ILIKE :search_term
+                        OR delivery_address ILIKE :search_term
                     ORDER BY 
                         date DESC, id DESC;
                     """
                 ),
                 {
-                    "from_date": from_date,
-                    "to_date": to_date,
                     "search_term": f"%{search_term}%"
                 }
             )
@@ -68,8 +66,9 @@ def get_orders(dt: date, search_term: str=""):
 
 
 def get_order_items(dt: date, order_ids: list):
-    from_date = dt.strftime("%Y-%m-%d") + " 00:00:00"
-    to_date = dt.strftime("%Y-%m-%d") + " 23:59:59"
+    if dt is not None:
+        from_date = dt.strftime("%Y-%m-%d") + " 00:00:00"
+        to_date = dt.strftime("%Y-%m-%d") + " 23:59:59"
 
     with postgresql.session as session:
         if order_ids:
@@ -294,13 +293,19 @@ def add_order_item(session, order_id: int, item: dict):
                 order_id, 
                 stock_category_id, 
                 quantity, 
-                amount
+                amount,
+                description,
+                price,
+                extra
             )
             VALUES (
                 :order_id, 
                 :stock_category_id, 
                 :quantity, 
-                :amount
+                :amount,
+                :description,
+                :price,
+                :extra
             );
             """
         ), 
@@ -308,7 +313,10 @@ def add_order_item(session, order_id: int, item: dict):
             "order_id": order_id, 
             "stock_category_id": item["stock_category_id"], 
             "quantity": item["quantity"], 
-            "amount": item["amount"]
+            "amount": item["amount"],
+            "description": item["description"],
+            "price": item["price"],
+            "extra": item["extra"]
         }
     )
 

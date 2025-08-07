@@ -406,8 +406,8 @@ def this_month_vs_last_month():
     st.divider()
 
 
-# Summary DataFrames
-def summary_dataframes():
+# Monthly Summary
+def monthly_summary():
     st.markdown("📋 Monthly Summary")
     
     tab1, tab2, tab3 = st.tabs(["Orders", "Payment Types", "Stock Categories"])
@@ -513,6 +513,6 @@ if orders_data.shape[0]:
     quantity_and_amount_by_stock_category()
     payment_type_insights()
     this_month_vs_last_month()
-    summary_dataframes()
+    monthly_summary()
 else:
     st.info("No data available 📭")
