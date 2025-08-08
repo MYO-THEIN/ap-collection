@@ -11,12 +11,21 @@ st.title("🛒 Orders")
 if "show_form" not in st.session_state:
     st.session_state["show_form"] = False
 
+trans_per_page = 5
+if "page" not in st.session_state:
+    st.session_state["page"] = 1
+if "last_filter_mode" not in st.session_state:
+    st.session_state["last_filter_mode"] = None
+if "last_filter_value" not in st.session_state:
+    st.session_state["last_filter_value"] = None
+
 # Search
 with st.spinner("Searching ..."):
     data, data_items = pd.DataFrame(), pd.DataFrame()
     filter_mode = st.radio(label="🔎 Filter", options=["Date", "Customer"], horizontal=True)
     if filter_mode == "Date":
         dt = st.date_input(label="Date", label_visibility="collapsed", value=datetime.today(), format="YYYY-MM-DD", key="search_date")
+        filter_value = str(dt)
         if dt:
             data = controller.get_orders(dt=dt, search_term=None)
             if data is not None and len(data["id"].tolist()):
@@ -24,31 +33,34 @@ with st.spinner("Searching ..."):
 
     elif filter_mode == "Customer":
         search_term = st.text_input(label="Search Order", label_visibility="collapsed")
+        filter_value = search_term
         if search_term:
             data = controller.get_orders(dt=None, search_term=search_term)
             if data is not None and len(data["id"].tolist()):
                 data_items = controller.get_order_items(dt=None, order_ids=data["id"].tolist())
 
+    # reset pagination if filter changes
+    if (filter_mode != st.session_state["last_filter_mode"] or filter_value != st.session_state["last_filter_value"]):
+        st.session_state["page"] = 1
+    st.session_state["last_filter_mode"] = filter_mode
+    st.session_state["last_filter_value"] = filter_value
+
     st.write("### Orders")
     if data.shape[0]:
         # pagination
-        trans_per_page = 5
-        if "page" not in st.session_state:
-            st.session_state["page"] = 1
-
         total_pages = (len(data) - 1) // trans_per_page + 1
         col1, col2, col3 = st.columns([1, 3, 1], vertical_alignment="center")
         with col1:
             if st.button("⬅️ Prev", use_container_width=True) and st.session_state["page"] > 1:
-                st.session_state["page"] -= 1
+                st.session_state["page"] = st.session_state["page"] - 1
+        with col3:
+            if st.button("Next ➡️", use_container_width=True) and st.session_state["page"] < total_pages:
+                st.session_state["page"] = st.session_state["page"] + 1  
         with col2:
             st.markdown(
                 f"<div style='text-align: center;'>Page {st.session_state['page']} of {total_pages}</div>",
                 unsafe_allow_html=True
             )
-        with col3:
-            if st.button("Next ➡️", use_container_width=True) and st.session_state["page"] < total_pages:
-                st.session_state["page"] += 1
 
         start = (st.session_state["page"] - 1) * trans_per_page
         end = start + trans_per_page
@@ -57,8 +69,13 @@ with st.spinner("Searching ..."):
         for _, row in paginated_data.iterrows():
             items = data_items[data_items["order_id"] == row["id"]]
 
-            col1, col2 = st.columns([3, 1])
+            col1, col2 = st.columns([3, 1], vertical_alignment="center")
             with col1:
+                if row["is_delivered"]:
+                    st.markdown(f"# :green-badge[:truck: Delivered: {row['delivery_date']}]")
+                else:
+                    st.markdown(f"# :orange-badge[:bulb: Due: {row['delivery_date']}]")
+
                 st.markdown(f"**Date**: {row['date']} | **Customer**: {row['customer_serial_no']} {row['customer_name']} | **Total Quantity**: {row['ttl_quantity']}")
                 st.markdown(f"**Total Amount**: {row['ttl_amount']:,} | **Discount**: {row['discount']:,} | **Delivery Charges**: {row['delivery_charges']}")
                 st.markdown(f"**Payment Type**: {row['payment_type_name']} | **Paid Amount**: {row['paid_amount']:,}")
@@ -116,6 +133,10 @@ with st.spinner("Searching ..."):
                     },
                     hide_index=True
                 )
+
+                if row["measurement"]:
+                    st.markdown("Measurement")
+                    st.markdown(row["measurement"].replace("\n", "<br>"), unsafe_allow_html=True)
 
             st.divider()
     else:
