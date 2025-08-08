@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from forms import customer, search_customer
 from src.payment_type import get_payment_types
 from src.stock_category import get_stock_categories
@@ -100,13 +100,23 @@ def order_form(is_edit: bool, submit_callback=None):
             if st.session_state["search_id"] == st.session_state["edit_customer_id"]:
                 deli_addr = st.session_state["edit_delivery_address"]
             else:
-                deli_addr = f"{searched_delivery_address}, {searched_city}, {searched_state_region}"
+                deli_addr = f"{searched_city}, {searched_state_region}"
         else:
-            deli_addr = f"{searched_delivery_address}, {searched_city}, {searched_state_region}"
+            deli_addr = f"{searched_city}, {searched_state_region}"
         delivery_address = st.text_area(
             label="Delivery Address",
             value=deli_addr,
             max_chars=200
+        )
+
+        delivery_date = st.date_input(
+            label="Delivery Date", 
+            value=dt + timedelta(days=14) if not is_edit else st.session_state["edit_delivery_date"],
+            format="YYYY-MM-DD"
+        )
+        is_delivered = st.toggle(
+            label="Delivered?",
+            value=False if not is_edit else st.session_state["edit_is_delivered"]
         )
 
     # ----- Item Info -----
@@ -149,6 +159,12 @@ def order_form(is_edit: bool, submit_callback=None):
                         st.session_state["order_items"].append(item)
 
                     st.success(f"Added: {stock_category_name} x {quantity}")
+
+    measurement = st.text_area(
+        label="Measurement",
+        value=None if not is_edit else st.session_state["edit_measurement"],
+        height="content"
+    )
 
     # ----- Items List -----
     st.subheader("📋 Order Items")
@@ -206,7 +222,7 @@ def order_form(is_edit: bool, submit_callback=None):
         label="Paid Amount",
         value=ttl_amount - discount + delivery_charges
     )
-    
+        
     payment_type_name = st.selectbox(
         label="Payment Type",
         options=payment_types["name"].tolist(),
@@ -241,7 +257,10 @@ def order_form(is_edit: bool, submit_callback=None):
                 "delivery_address": delivery_address,
                 "delivery_charges": delivery_charges,
                 "payment_type_id": payment_type_id,
-                "paid_amount": paid_amount
+                "paid_amount": paid_amount,
+                "delivery_date": delivery_date,
+                "is_delivered": is_delivered,
+                "measurement": measurement
             }
 
             if is_edit:

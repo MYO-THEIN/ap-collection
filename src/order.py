@@ -158,7 +158,10 @@ def add_order(order: dict, order_items: list):
                         delivery_address, 
                         delivery_charges, 
                         payment_type_id,
-                        paid_amount
+                        paid_amount,
+                        measurement,
+                        is_delivered,
+                        delivery_date
                     )
                     VALUES (
                         :date, 
@@ -171,7 +174,10 @@ def add_order(order: dict, order_items: list):
                         :delivery_address, 
                         :delivery_charges, 
                         :payment_type_id,
-                        :paid_amount
+                        :paid_amount,
+                        :measurement,
+                        :is_delivered,
+                        :delivery_date
                     )
                     RETURNING id;
                     """
@@ -187,7 +193,10 @@ def add_order(order: dict, order_items: list):
                     "delivery_address": order["delivery_address"], 
                     "delivery_charges": order["delivery_charges"], 
                     "payment_type_id": order["payment_type_id"],
-                    "paid_amount": order["paid_amount"]
+                    "paid_amount": order["paid_amount"],
+                    "measurement": order["measurement"],
+                    "is_delivered": order["is_delivered"],
+                    "delivery_date": order["delivery_date"]
                 }
             )
 
@@ -231,7 +240,10 @@ def update_order(order: dict, order_items: list):
                         delivery_address = :delivery_address,
                         delivery_charges = :delivery_charges,
                         payment_type_id = :payment_type_id,
-                        paid_amount = :paid_amount
+                        paid_amount = :paid_amount,
+                        measurement = :measurement,
+                        is_delivered = :is_delivered,
+                        delivery_date = :delivery_date
                     WHERE
                         id = :id;
                     """
@@ -248,7 +260,10 @@ def update_order(order: dict, order_items: list):
                     "delivery_address": order["delivery_address"], 
                     "delivery_charges": order["delivery_charges"], 
                     "payment_type_id": order["payment_type_id"],
-                    "paid_amount": order["paid_amount"]
+                    "paid_amount": order["paid_amount"],
+                    "measurement": order["measurement"],
+                    "is_delivered": order["is_delivered"],
+                    "delivery_date": order["delivery_date"]
                 }
             )
 
