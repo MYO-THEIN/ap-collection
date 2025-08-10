@@ -78,5 +78,9 @@ if st.session_state["show_form"]:
 
 if "show_success" in st.session_state and st.session_state["show_success"]:
     st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
+    del st.session_state["show_success"]
+    del st.session_state["show_success_msg"]
 elif "show_error" in st.session_state and st.session_state["show_error"]:
     st.error(st.session_state["show_error_msg"], icon=":material/thumb_down:")
+    del st.session_state["show_error"]
+    del st.session_state["show_error_msg"]

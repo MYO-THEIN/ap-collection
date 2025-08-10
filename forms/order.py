@@ -183,15 +183,19 @@ def order_form(is_edit: bool, submit_callback=None):
                 },
                 use_container_width=True,
                 key="order_items_data_editor",
+                num_rows="dynamic"
             )
 
             _, _, btn_col = st.columns([6, 1, 2])
             with btn_col:
                 if st.button("🔄 Update Item"):
+                    # remove items where stock_category_name is None
+                    df = [i for i in df if i.get("stock_category_name") is not None]
                     if is_edit:
                         st.session_state["edit_order_items"] = df
                     else:
                         st.session_state["order_items"] = df
+                    st.rerun()
     else:
         st.info("No items added yet.")
 

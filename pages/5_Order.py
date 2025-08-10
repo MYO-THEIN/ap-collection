@@ -4,6 +4,7 @@ from datetime import datetime
 import src.order as controller
 import forms.order as order_form
 import src.utils as utils
+from streamlit.components.v1 import html
 
 st.set_page_config(layout="centered")
 st.title("🛒 Orders")
@@ -22,7 +23,7 @@ if "last_filter_value" not in st.session_state:
 # Search
 with st.spinner("Searching ..."):
     data, data_items = pd.DataFrame(), pd.DataFrame()
-    filter_mode = st.radio(label="🔎 Filter", options=["Date", "Customer"], horizontal=True)
+    filter_mode = st.radio(label="🔎 Search Order", options=["Date", "Customer"], horizontal=True)
     if filter_mode == "Date":
         dt = st.date_input(label="Date", label_visibility="collapsed", value=datetime.today(), format="YYYY-MM-DD", key="search_date")
         filter_value = str(dt)
@@ -51,10 +52,10 @@ with st.spinner("Searching ..."):
         total_pages = (len(data) - 1) // trans_per_page + 1
         col1, col2, col3 = st.columns([1, 3, 1], vertical_alignment="center")
         with col1:
-            if st.button("⬅️ Prev", use_container_width=True) and st.session_state["page"] > 1:
+            if st.button("⬅ Prev", use_container_width=True) and st.session_state["page"] > 1:
                 st.session_state["page"] = st.session_state["page"] - 1
         with col3:
-            if st.button("Next ➡️", use_container_width=True) and st.session_state["page"] < total_pages:
+            if st.button("Next ➡", use_container_width=True) and st.session_state["page"] < total_pages:
                 st.session_state["page"] = st.session_state["page"] + 1  
         with col2:
             st.markdown(
@@ -69,7 +70,7 @@ with st.spinner("Searching ..."):
         for _, row in paginated_data.iterrows():
             items = data_items[data_items["order_id"] == row["id"]]
 
-            col1, col2 = st.columns([3, 1], vertical_alignment="center")
+            col1, col2 = st.columns([3, 1], vertical_alignment="bottom")
             with col1:
                 if row["is_delivered"]:
                     st.markdown(f"# :green-badge[:truck: Delivered: {row['delivery_date']}]")
@@ -81,6 +82,7 @@ with st.spinner("Searching ..."):
                 st.markdown(f"**Payment Type**: {row['payment_type_name']} | **Paid Amount**: {row['paid_amount']:,}")
             
             with col2:
+                # Edit Button
                 if st.button(label="✏️ Edit", key=f"edit_{row['id']}", use_container_width=True):
                     st.session_state["edit_id"] = row["id"]
                     st.session_state["edit_date"] = row["date"]
@@ -107,11 +109,18 @@ with st.spinner("Searching ..."):
                     st.session_state["edit_delivery_date"] = row["delivery_date"]
                     st.session_state["edit_order_items"] = items.drop(columns=["id", "order_id"]).to_dict(orient="records")
 
+                # Delete Button
                 if st.button(label="🗑️ Delete", key=f"delete_{row['id']}", use_container_width=True, disabled=True):
                     controller.delete_order(row["id"])
                     st.session_state["show_success"] = True
                     st.session_state["show_success_msg"] = "Deleted successfully."
                     st.rerun()
+
+                # Receipt Button
+                if st.button(label="🖨️ Receipt", key=f"receipt_{row['id']}", use_container_width=True):
+                    receipt_html = utils.build_receipt_html(order=row.to_dict(), items=items.to_dict(orient="records"))
+                    html(receipt_html, height=0, width=0)
+
 
             with st.expander(label="📋 Items"):
                 items = items.drop(columns=["id", "order_id", "stock_category_id"])
@@ -194,5 +203,9 @@ if st.session_state["show_form"]:
 
 if "show_success" in st.session_state and st.session_state["show_success"]:
     st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
+    del st.session_state["show_success"]
+    del st.session_state["show_success_msg"]
 elif "show_error" in st.session_state and st.session_state["show_error"]:
     st.error(st.session_state["show_error_msg"], icon=":material/thumb_down:")
+    del st.session_state["show_error"]
+    del st.session_state["show_error_msg"]

@@ -77,17 +77,41 @@ def daily_quantity_and_revenue():
         agg_daily_quantity.columns = ["Date", "Quantity"]
 
         st.markdown("📦 Daily Quantity")
-        bar_daily_quantity = alt.Chart(agg_daily_quantity) \
-            .mark_bar(color="#4daf4a") \
-            .encode(
-                x=alt.X("Date", title="Date", axis=alt.Axis(format="%m-%d")),
-                y=alt.Y("Quantity", title="Quantity"),
-                tooltip=[
-                    alt.Tooltip("Date", title="Date"),
-                    alt.Tooltip("Quantity", title="Quantity")
-                ]
+        mean_value = agg_daily_quantity["Quantity"].mean()
+        fig = px.bar(
+            data_frame=agg_daily_quantity, 
+            x="Date",
+            y="Quantity",
+            color_discrete_sequence=["#4daf4a"]
+        ) \
+        .update_traces(
+            hovertemplate=(
+                "<b>%{x|%m-%d}</b><br>"
+                "Quantity: %{value}"
             )
-        st.altair_chart(bar_daily_quantity, use_container_width=True)
+        ) \
+        .add_trace(
+            go.Scatter(
+                x=agg_daily_quantity["Date"],
+                y=[mean_value] * len(agg_daily_quantity),
+                mode="lines",
+                line=dict(color="red", dash="dash"),
+                name=f"Mean = {mean_value :.0f}",
+                hovertemplate=f"Mean = {mean_value :.0f}"
+            )
+        ) \
+        .update_layout(
+            xaxis_tickformat="%m-%d",
+            yaxis_tickformat=".0f",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="center",
+                x=0.5
+            )
+        )
+        st.plotly_chart(fig, use_container_width=True)
     
     with col2:
         # Revenue - Bar Chart
@@ -97,17 +121,41 @@ def daily_quantity_and_revenue():
         agg_daily_revenue.columns = ["Date", "Revenue"]
 
         st.markdown("💰 Daily Revenue")
-        bar_daily_revenue = alt.Chart(agg_daily_revenue) \
-            .mark_bar(color="#d62728") \
-            .encode(
-                x=alt.X("Date", title="Date", axis=alt.Axis(format="%m-%d")),
-                y=alt.Y("Revenue", title="Revenue"),
-                tooltip=[
-                    alt.Tooltip("Date", title="Date"),
-                    alt.Tooltip("Revenue", title="Revenue", format=",.0f")
-                ]
+        mean_value = agg_daily_revenue["Revenue"].mean()
+        fig = px.bar(
+            data_frame=agg_daily_revenue, 
+            x="Date",
+            y="Revenue",
+            color_discrete_sequence=["#d62728"]
+        ) \
+        .update_traces(
+            hovertemplate=(
+                "<b>%{x|%m-%d}</b><br>"
+                "Revenue: %{value}"
             )
-        st.altair_chart(bar_daily_revenue, use_container_width=True)
+        ) \
+        .add_trace(
+            go.Scatter(
+                x=agg_daily_revenue["Date"],
+                y=[mean_value] * len(agg_daily_revenue),
+                mode="lines",
+                line=dict(color="green", dash="dash"),
+                name=f"Mean = {mean_value :,.0f}",
+                hovertemplate=f"Mean = {mean_value :,.0f}"
+            )
+        ) \
+        .update_layout(
+            xaxis_tickformat="%m-%d",
+            yaxis_tickformat=",.0f",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="center",
+                x=0.5
+            )
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
     st.divider()
 

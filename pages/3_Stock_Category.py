@@ -65,3 +65,5 @@ with st.expander("➕ Add New Stock Category"):
 
 if "show_success" in st.session_state and st.session_state["show_success"]:
     st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
+    del st.session_state["show_success"]
+    del st.session_state["show_success_msg"]

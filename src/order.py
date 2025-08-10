@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import date
+from datetime import datetime, date, timedelta
 from sqlalchemy import text, bindparam
 import src.utils as utils
 
@@ -341,3 +341,164 @@ def delete_order_items(session, order_id: int):
         text("DELETE FROM order_items WHERE order_id = :order_id;"), 
         {"order_id": order_id}
     )
+
+
+# delivery
+def get_undelivered_orders(search_term: str=None):
+    today = "2025-08-31"  # datetime.now().strftime("%Y-%m-%d")
+
+    with postgresql.session as session:
+        if search_term:
+            result = session.execute(
+                text(
+                    """
+                    SELECT 
+                        *
+                    FROM 
+                        v_orders
+                    WHERE
+                        is_delivered = false
+                        AND 
+                        (order_no ILIKE :search_term
+                        OR customer_serial_no ILIKE :search_term
+                        OR customer_name ILIKE :search_term
+                        OR customer_phone ILIKE :search_term
+                        OR customer_city ILIKE :search_term
+                        OR customer_state_region ILIKE :search_term
+                        OR customer_country ILIKE :search_term
+                        OR payment_type_name ILIKE :search_term
+                        OR delivery_address ILIKE :search_term)
+                    ORDER BY 
+                        delivery_date ASC;
+                    """
+                ),
+                {
+                    "search_term": f"%{search_term}%"
+                }
+            )
+        else:
+            result = session.execute(
+                text(
+                    """
+                    SELECT 
+                        * 
+                    FROM 
+                        v_orders
+                    WHERE
+                        is_delivered = false
+                        AND delivery_date <= :today
+                    ORDER BY 
+                        delivery_date ASC;
+                    """
+                ),
+                {
+                    "today": today
+                }
+            )
+
+        df = pd.DataFrame(result.fetchall(), columns=result.keys())
+        return df
+
+
+def update_delivery_status(id: int, is_delivered: bool, delivery_date: date):
+    with postgresql.session as session:
+        try:
+            session.execute(
+                text(
+                    """
+                    UPDATE 
+                        orders
+                    SET
+                        is_delivered = :is_delivered,
+                        delivery_date = :delivery_date
+                    WHERE
+                        id = :id;
+                    """
+                ), 
+                {
+                    "id": id, 
+                    "is_delivered": is_delivered,
+                    "delivery_date": delivery_date
+                }
+            )
+            
+            session.commit()
+            return True
+        except Exception as e:
+            print("Error occurred while updating an order: ", e)
+            session.rollback()
+            return False
+
+
+def get_delivered_orders(from_date: date, to_date: date, search_term: str=None):
+    with postgresql.session as session:
+        if search_term:
+            result = session.execute(
+                text(
+                    """
+                    SELECT 
+                        o.delivery_date,
+                        o.date,
+                        o.order_no,
+                        o.customer_serial_no,
+                        o.customer_name,
+                        oi.stock_category_name,
+                        oi.description,
+                        oi.quantity
+                    FROM
+                        v_orders AS o
+                        INNER JOIN v_order_items AS oi 
+                        ON o.id = oi.order_id
+                    WHERE
+                        o.is_delivered = true
+                        AND 
+                        (o.order_no ILIKE :search_term
+                        OR o.customer_serial_no ILIKE :search_term
+                        OR o.customer_name ILIKE :search_term
+                        OR o.customer_phone ILIKE :search_term
+                        OR o.customer_city ILIKE :search_term
+                        OR o.customer_state_region ILIKE :search_term
+                        OR o.customer_country ILIKE :search_term
+                        OR o.payment_type_name ILIKE :search_term
+                        OR o.delivery_address ILIKE :search_term)
+                    ORDER BY 
+                        o.delivery_date ASC, o.id;
+                    """
+                ),
+                {
+                    "search_term": f"%{search_term}%"
+                }
+            )
+        else:
+            result = session.execute(
+                text(
+                    """
+                    SELECT 
+                        o.delivery_date,
+                        o.date,
+                        o.order_no,
+                        o.customer_serial_no,
+                        o.customer_name,
+                        oi.stock_category_name,
+                        oi.description,
+                        oi.quantity
+                    FROM
+                        v_orders AS o
+                        INNER JOIN v_order_items AS oi 
+                        ON o.id = oi.order_id
+                    WHERE
+                        o.is_delivered = true
+                        AND
+                        (delivery_date BETWEEN :from_date AND :to_date)
+                    ORDER BY 
+                        o.delivery_date ASC, o.id;
+                    """
+                ),
+                {
+                    "from_date": from_date,
+                    "to_date": to_date
+                }
+            )
+
+        df = pd.DataFrame(result.fetchall(), columns=result.keys())
+        return df
