@@ -345,7 +345,7 @@ def delete_order_items(session, order_id: int):
 
 # delivery
 def get_undelivered_orders(search_term: str=None):
-    today = "2025-08-31"  # datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now().strftime("%Y-%m-%d")
 
     with postgresql.session as session:
         if search_term:

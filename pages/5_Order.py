@@ -70,7 +70,7 @@ with st.spinner("Searching ..."):
         for _, row in paginated_data.iterrows():
             items = data_items[data_items["order_id"] == row["id"]]
 
-            col1, col2 = st.columns([3, 1], vertical_alignment="bottom")
+            col1, col2 = st.columns([3, 1], vertical_alignment="center")
             with col1:
                 if row["is_delivered"]:
                     st.markdown(f"# :green-badge[:truck: Delivered: {row['delivery_date']}]")
@@ -82,44 +82,49 @@ with st.spinner("Searching ..."):
                 st.markdown(f"**Payment Type**: {row['payment_type_name']} | **Paid Amount**: {row['paid_amount']:,}")
             
             with col2:
+                col_edit, col_delete, col_receipt = st.columns(3)
+                
                 # Edit Button
-                if st.button(label="✏️ Edit", key=f"edit_{row['id']}", use_container_width=True):
-                    st.session_state["edit_id"] = row["id"]
-                    st.session_state["edit_date"] = row["date"]
-                    st.session_state["edit_order_no"] = row["order_no"]                        
-                    st.session_state["search_id"] = row["customer_id"]
-                    st.session_state["search_serial_no"] = row["customer_serial_no"]
-                    st.session_state["search_name"] = row["customer_name"]
-                    st.session_state["search_phone"] = row["customer_phone"]
-                    st.session_state["search_delivery_address"] = row["customer_delivery_address"]
-                    st.session_state["search_city"] = row["customer_city"]
-                    st.session_state["search_state_region"] = row["customer_state_region"]
-                    st.session_state["edit_customer_id"] = row["customer_id"]
-                    st.session_state["edit_delivery_address"] = row["delivery_address"]
-                    st.session_state["edit_ttl_quantity"] = row["ttl_quantity"]
-                    st.session_state["edit_ttl_amount"] = row["ttl_amount"]
-                    st.session_state["edit_discount"] = row["discount"]
-                    st.session_state["edit_sub_total"] = row["sub_total"]
-                    st.session_state["edit_delivery_charges"] = row["delivery_charges"]
-                    st.session_state["edit_payment_type_id"] = row["payment_type_id"]
-                    st.session_state["edit_payment_type_name"] = row["payment_type_name"]
-                    st.session_state["edit_paid_amount"] = row["paid_amount"]
-                    st.session_state["edit_measurement"] = row["measurement"]
-                    st.session_state["edit_is_delivered"] = row["is_delivered"]
-                    st.session_state["edit_delivery_date"] = row["delivery_date"]
-                    st.session_state["edit_order_items"] = items.drop(columns=["id", "order_id"]).to_dict(orient="records")
+                with col_edit:
+                    if st.button(label="✏️", key=f"edit_{row['id']}", use_container_width=True):
+                        st.session_state["edit_id"] = row["id"]
+                        st.session_state["edit_date"] = row["date"]
+                        st.session_state["edit_order_no"] = row["order_no"]                        
+                        st.session_state["search_id"] = row["customer_id"]
+                        st.session_state["search_serial_no"] = row["customer_serial_no"]
+                        st.session_state["search_name"] = row["customer_name"]
+                        st.session_state["search_phone"] = row["customer_phone"]
+                        st.session_state["search_delivery_address"] = row["customer_delivery_address"]
+                        st.session_state["search_city"] = row["customer_city"]
+                        st.session_state["search_state_region"] = row["customer_state_region"]
+                        st.session_state["edit_customer_id"] = row["customer_id"]
+                        st.session_state["edit_delivery_address"] = row["delivery_address"]
+                        st.session_state["edit_ttl_quantity"] = row["ttl_quantity"]
+                        st.session_state["edit_ttl_amount"] = row["ttl_amount"]
+                        st.session_state["edit_discount"] = row["discount"]
+                        st.session_state["edit_sub_total"] = row["sub_total"]
+                        st.session_state["edit_delivery_charges"] = row["delivery_charges"]
+                        st.session_state["edit_payment_type_id"] = row["payment_type_id"]
+                        st.session_state["edit_payment_type_name"] = row["payment_type_name"]
+                        st.session_state["edit_paid_amount"] = row["paid_amount"]
+                        st.session_state["edit_measurement"] = row["measurement"]
+                        st.session_state["edit_is_delivered"] = row["is_delivered"]
+                        st.session_state["edit_delivery_date"] = row["delivery_date"]
+                        st.session_state["edit_order_items"] = items.drop(columns=["id", "order_id"]).to_dict(orient="records")
 
                 # Delete Button
-                if st.button(label="🗑️ Delete", key=f"delete_{row['id']}", use_container_width=True, disabled=True):
-                    controller.delete_order(row["id"])
-                    st.session_state["show_success"] = True
-                    st.session_state["show_success_msg"] = "Deleted successfully."
-                    st.rerun()
+                with col_delete:
+                    if st.button(label="🗑️", key=f"delete_{row['id']}", use_container_width=True, disabled=True):
+                        controller.delete_order(row["id"])
+                        st.session_state["show_success"] = True
+                        st.session_state["show_success_msg"] = "Deleted successfully."
+                        st.rerun()
 
                 # Receipt Button
-                if st.button(label="🖨️ Receipt", key=f"receipt_{row['id']}", use_container_width=True):
-                    receipt_html = utils.build_receipt_html(order=row.to_dict(), items=items.to_dict(orient="records"))
-                    html(receipt_html, height=0, width=0)
+                with col_receipt:
+                    if st.button(label="🖨️", key=f"receipt_{row['id']}", use_container_width=True):
+                        receipt_html = utils.build_receipt_html(order=row.to_dict(), items=items.to_dict(orient="records"))
+                        html(receipt_html, height=0, width=0)
 
 
             with st.expander(label="📋 Items"):

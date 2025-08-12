@@ -96,8 +96,7 @@ def build_receipt_html(order: dict, items: list):
         <p>
             <b>Date:</b> {order['date'].strftime('%d-%m-%Y')}<br>
             <b>Order No:</b> {order['order_no']}<br>
-            <b>Customer:</b> {order['customer_name']}<br>
-            <b>Delivery:</b> {order['delivery_address']}
+            <b>Customer:</b> {order['customer_name']}
         </p>
       
         <table>

@@ -111,7 +111,7 @@ def order_form(is_edit: bool, submit_callback=None):
 
         delivery_date = st.date_input(
             label="Delivery Date", 
-            value=dt + timedelta(days=14) if not is_edit else st.session_state["edit_delivery_date"],
+            value=dt + timedelta(days=10) if not is_edit else st.session_state["edit_delivery_date"],
             format="YYYY-MM-DD"
         )
         is_delivered = st.toggle(
