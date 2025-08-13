@@ -146,7 +146,7 @@ with tab2:
         with date_col1:
             from_date_delivered = st.date_input(
                 label="From", label_visibility="collapsed", 
-                value=datetime.today() - timedelta(days=6), format="YYYY-MM-DD", 
+                value=datetime.today(), format="YYYY-MM-DD", 
                 key="search_from_date_delivered"
             )
         with date_col2:

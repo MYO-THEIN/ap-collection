@@ -78,7 +78,7 @@ with st.spinner("Searching ..."):
                     st.markdown(f"# :orange-badge[:bulb: Due: {row['delivery_date']}]")
 
                 st.markdown(f"**Date**: {row['date']} | **Customer**: {row['customer_serial_no']} {row['customer_name']} | **Total Quantity**: {row['ttl_quantity']}")
-                st.markdown(f"**Total Amount**: {row['ttl_amount']:,} | **Discount**: {row['discount']:,} | **Delivery Charges**: {row['delivery_charges']}")
+                st.markdown(f"**Total Amount**: {row['ttl_amount']:,} | **Discount**: {row['discount']:,} | **Delivery Charges**: {row['delivery_charges']:,}")
                 st.markdown(f"**Payment Type**: {row['payment_type_name']} | **Paid Amount**: {row['paid_amount']:,}")
             
             with col2:

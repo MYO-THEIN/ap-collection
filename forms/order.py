@@ -218,8 +218,7 @@ def order_form(is_edit: bool, submit_callback=None):
     )
     delivery_charges = st.number_input(
         label="Delivery Charges",
-        min_value=0, 
-        max_value=10000,
+        min_value=0,
         value=st.session_state["edit_delivery_charges"] if is_edit else 0
     )
     paid_amount = st.number_input(
