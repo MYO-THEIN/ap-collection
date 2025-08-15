@@ -86,7 +86,7 @@ with st.spinner("Searching ..."):
                 
                 # Edit Button
                 with col_edit:
-                    if st.button(label="✏️", key=f"edit_{row['id']}", use_container_width=True):
+                    if st.button(label="✏️", help="Edit Order", key=f"edit_{row['id']}", use_container_width=True):
                         st.session_state["edit_id"] = row["id"]
                         st.session_state["edit_date"] = row["date"]
                         st.session_state["edit_order_no"] = row["order_no"]                        
@@ -114,7 +114,7 @@ with st.spinner("Searching ..."):
 
                 # Delete Button
                 with col_delete:
-                    if st.button(label="🗑️", key=f"delete_{row['id']}", use_container_width=True, disabled=True):
+                    if st.button(label="🗑️", help="Delete Order", key=f"delete_{row['id']}", use_container_width=True, disabled=True):
                         controller.delete_order(row["id"])
                         st.session_state["show_success"] = True
                         st.session_state["show_success_msg"] = "Deleted successfully."
@@ -122,7 +122,7 @@ with st.spinner("Searching ..."):
 
                 # Receipt Button
                 with col_receipt:
-                    if st.button(label="🖨️", key=f"receipt_{row['id']}", use_container_width=True):
+                    if st.button(label="🖨️", help="Print Receipt", key=f"receipt_{row['id']}", use_container_width=True):
                         receipt_html = utils.build_receipt_html(order=row.to_dict(), items=items.to_dict(orient="records"))
                         html(receipt_html, height=0, width=0)
 

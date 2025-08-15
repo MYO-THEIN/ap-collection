@@ -3,6 +3,7 @@ import pandas as pd
 import math
 from datetime import datetime, date, timedelta
 from src.order import get_undelivered_orders, get_delivered_orders, get_order_items, update_delivery_status
+from src.utils import confirmation_dialog
 
 st.set_page_config(layout="centered")
 st.title("🚚 Delivery")
@@ -11,8 +12,10 @@ orders_per_page = 16
 cols_per_row = 4
 if "undelivered_page" not in st.session_state:
     st.session_state["undelivered_page"] = 1
-if "last_search_term_undelivered" not in st.session_state:
-    st.session_state["last_search_term_undelivered"] = None
+if "last_filter_mode_undelivered" not in st.session_state:
+    st.session_state["last_filter_mode_undelivered"] = None
+if "last_filter_value_undelivered" not in st.session_state:
+    st.session_state["last_filter_value_undelivered"] = None
 
 @st.dialog(title="Order Info", width="large")
 def display_order_info_dialog(id: int, date: date, order_no: str, customer_serial_no: str, customer_name: str, measurement: str):
@@ -53,17 +56,60 @@ elif "show_error" in st.session_state and st.session_state["show_error"]:
 tab1, tab2 = st.tabs(["🚚 Undelivered", "🚛 Delivered"])
 with tab1:
     data_undelivered = pd.DataFrame()
-    search_term_undelivered = st.text_input(
-        label="🔎 Search Undelivered Order",
-        max_chars=50
-    )
+    filter_mode_undelivered = st.radio(label="🔎 Search Undelivered Order", options=["Due Date", "Order Date", "Customer"], horizontal=True)
+    # Due Date filter
+    if filter_mode_undelivered == "Due Date":
+        due_date_undelivered = st.date_input(
+            label="Due Date", label_visibility="collapsed", 
+            value=datetime.today(), format="YYYY-MM-DD", 
+            key="search_due_date_undelivered"
+        )
+        filter_value_undelivered = str(due_date_undelivered)
+        if due_date_undelivered:
+            data_undelivered = get_undelivered_orders(due_date=due_date_undelivered)
+    
+    # Order Date filter
+    elif filter_mode_undelivered == "Order Date":
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            order_date_from_undelivered = st.date_input(
+                label="From", label_visibility="collapsed", 
+                value=datetime.today() - timedelta(days=6), format="YYYY-MM-DD", 
+                key="search_order_date_from_undelivered"
+            )
+        with date_col2:
+            order_date_to_undelivered = st.date_input(
+                label="To", label_visibility="collapsed", 
+                value=datetime.today(), format="YYYY-MM-DD", 
+                key="search_order_date_to_undelivered"
+            )
+        filter_value_undelivered = f"{str(order_date_from_undelivered)} to {str(order_date_to_undelivered)}"
+        if order_date_from_undelivered and order_date_to_undelivered:
+            data_undelivered = get_undelivered_orders(
+                due_date=None, 
+                order_date_from=order_date_from_undelivered,
+                order_date_to=order_date_to_undelivered 
+            )
+    
+    # Customer filter
+    elif filter_mode_undelivered == "Customer":
+        search_term_undelivered = st.text_input(
+            label="🔎 Search Undelivered Order",
+            max_chars=50
+        )
+        filter_value_undelivered = search_term_undelivered
+        data_undelivered = get_undelivered_orders(
+            due_date=None,
+            order_date_from=None, 
+            order_date_to=None,
+            search_term=search_term_undelivered if search_term_undelivered else None
+        )
 
-    data_undelivered = get_undelivered_orders(search_term_undelivered if search_term_undelivered else None)
-
-     # reset pagination if filter changes
-    if (search_term_undelivered != st.session_state["last_search_term_undelivered"]):
+    # reset pagination if filter changes
+    if (filter_mode_undelivered != st.session_state["last_filter_mode_undelivered"] or filter_value_undelivered != st.session_state["last_filter_value_undelivered"]):
         st.session_state["undelivered_page"] = 1
-    st.session_state["last_search_term_undelivered"] = search_term_undelivered
+    st.session_state["last_filter_mode_undelivered"] = filter_mode_undelivered
+    st.session_state["last_filter_value_undelivered"] = filter_value_undelivered
 
     st.write("### Undelivered Orders")
     if data_undelivered.shape[0]:
@@ -111,7 +157,7 @@ with tab1:
 
                     btn_col1, btn_col2 = st.columns(2)
                     with btn_col1:
-                        if st.button("ℹ️", key=f"info_order_{rows.iloc[j]['id']}", use_container_width=True):
+                        if st.button("ℹ️", help="Order information", key=f"info_order_{rows.iloc[j]['id']}", use_container_width=True):
                             display_order_info_dialog(
                                 id=rows.iloc[j]["id"],
                                 date=rows.iloc[j]["date"],
@@ -121,27 +167,21 @@ with tab1:
                                 measurement=rows.iloc[j]['measurement']
                             )
                     with btn_col2:
-                        if st.button("🚛", key=f"deliver_{rows.iloc[j]['id']}_{i}", use_container_width=True):
-                            success = update_delivery_status(
-                                id=int(rows.iloc[j]["id"]),
-                                is_delivered=True,
-                                delivery_date=datetime.now().strftime("%Y-%m-%d")
+                        if st.button("🚛", help="Deliver", key=f"deliver_{rows.iloc[j]['id']}_{i}", use_container_width=True):
+                            st.session_state["to_deliver_order_id"] = rows.iloc[j]["id"]
+                            confirmation_dialog(
+                                msg="Are you sure to deliver this order?", 
+                                yes_button_txt="✅ Yes, deliver", 
+                                no_button_txt="❌ Cancel"
                             )
-
-                            if success:
-                                st.session_state["show_success"] = True
-                                st.session_state["show_success_msg"] = "Order has been delivered."
-                            else:
-                                st.session_state["show_error"] = True
-                                st.session_state["show_error_msg"] = "Delivering an order has failed due to some errors."
-                            st.rerun()
     else:
         st.info("No data available 📭")
 
 with tab2:
     data_delivered = pd.DataFrame()
-    filter_mode = st.radio(label="🔎 Search Delivered Order", options=["Date", "Customer"], horizontal=True)
-    if filter_mode == "Date":
+    filter_mode_delivered = st.radio(label="🔎 Search Delivered Order", options=["Date", "Customer"], horizontal=True)
+    # Date filter 
+    if filter_mode_delivered == "Date":
         date_col1, date_col2 = st.columns(2)
         with date_col1:
             from_date_delivered = st.date_input(
@@ -157,8 +197,9 @@ with tab2:
             )
         if from_date_delivered and to_date_delivered:
             data_delivered = get_delivered_orders(from_date_delivered, to_date_delivered, search_term=None)
-        
-    elif filter_mode == "Customer":
+    
+    # Customer filter
+    elif filter_mode_delivered == "Customer":
         search_term_delivered = st.text_input(label="Search", label_visibility="collapsed")
         if search_term_delivered:
             data_delivered = get_delivered_orders(from_date=None, to_date=None, search_term=search_term_delivered)
@@ -172,3 +213,23 @@ with tab2:
         st.dataframe(data_delivered, use_container_width=True)
     else:
         st.info("No data available 📭")
+
+
+# Order confirmed and good to go 
+if "confirmed_action" in st.session_state:
+    if st.session_state["confirmed_action"] == True and "to_deliver_order_id" in st.session_state:
+        success = update_delivery_status(
+            id=int(st.session_state["to_deliver_order_id"]),
+            is_delivered=True,
+            delivery_date=datetime.now().strftime("%Y-%m-%d")
+        )
+
+        if success:
+            st.session_state["show_success"] = True
+            st.session_state["show_success_msg"] = "Order has been delivered."
+            del st.session_state["confirmed_action"]
+            del st.session_state["to_deliver_order_id"]
+        else:
+            st.session_state["show_error"] = True
+            st.session_state["show_error_msg"] = "Delivering an order has failed due to some errors."
+        st.rerun()

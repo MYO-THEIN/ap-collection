@@ -41,6 +41,7 @@ def get_orders(dt: date, search_term: str=""):
                     "search_term": f"%{search_term}%"
                 }
             )
+
         else:
             result = session.execute(
                 text(
@@ -87,6 +88,7 @@ def get_order_items(dt: date, order_ids: list):
                 ),
                 {"order_ids": order_ids}
             )
+
         else:
             result = session.execute(
                 text(
@@ -344,11 +346,57 @@ def delete_order_items(session, order_id: int):
 
 
 # delivery
-def get_undelivered_orders(search_term: str=None):
+def get_undelivered_orders(due_date: date=None, order_date_from: date=None, order_date_to: date=None, search_term: str=None):
     today = datetime.now().strftime("%Y-%m-%d")
 
     with postgresql.session as session:
-        if search_term:
+        # Due Date
+        if due_date:
+            result = session.execute(
+                text(
+                    """
+                    SELECT
+                        *
+                    FROM
+                        v_orders
+                    WHERE
+                        is_delivered = false
+                        AND
+                        delivery_date <= :due_date
+                    ORDER BY
+                        delivery_date ASC;
+                    """
+                ),
+                {
+                    "due_date": due_date
+                }
+            )
+
+        # Order Date Range
+        elif order_date_from and order_date_to:
+            result = session.execute(
+                text(
+                    """
+                    SELECT
+                        *
+                    FROM
+                        v_orders
+                    WHERE
+                        is_delivered = false
+                        AND
+                        date BETWEEN :from_date AND :to_date
+                    ORDER BY
+                        delivery_date ASC;
+                    """
+                ),
+                {
+                    "from_date": order_date_from,
+                    "to_date": order_date_to
+                }
+            )
+
+        # Search Term
+        elif search_term:
             result = session.execute(
                 text(
                     """
@@ -376,6 +424,7 @@ def get_undelivered_orders(search_term: str=None):
                     "search_term": f"%{search_term}%"
                 }
             )
+
         else:
             result = session.execute(
                 text(
@@ -432,6 +481,7 @@ def update_delivery_status(id: int, is_delivered: bool, delivery_date: date):
 
 def get_delivered_orders(from_date: date, to_date: date, search_term: str=None):
     with postgresql.session as session:
+        # Search Term
         if search_term:
             result = session.execute(
                 text(
@@ -469,6 +519,8 @@ def get_delivered_orders(from_date: date, to_date: date, search_term: str=None):
                     "search_term": f"%{search_term}%"
                 }
             )
+
+        # Date Range
         else:
             result = session.execute(
                 text(

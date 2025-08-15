@@ -340,11 +340,24 @@ def get_comparison_figure(df: pd.DataFrame, x_name: str, title: str, xaxis_title
 
     # annotations for percentage change
     for _, row in df.iterrows():
+        arrow_color = "green" if row["Pct Change"] >= 0 else "red"
+        text_position = max(row[prev_month_name], row[current_month_name]) + 10
+        if row["Pct Change"] >= 0:
+            ax_offset, ay_offset = -20, 20
+        else:
+            ax_offset, ay_offset = -20, -20
+
         fig.add_annotation(
             x=row[x_name], 
-            y=max(row[prev_month_name], row[current_month_name]) + 5, 
-            text=f"{row['Pct Change']:+.2f}%", 
+            y=text_position, 
+            text=f"{row['Pct Change'] :+.2f}%", 
             showarrow=True,
+            arrowhead=2,
+            arrowsize=1.5,
+            arrowwidth=2,
+            arrowcolor=arrow_color,
+            ax=ax_offset,
+            ay=ay_offset,
             font=dict(color="black", size=12)
         )
 
