@@ -66,6 +66,28 @@ def get_orders(dt: date, search_term: str=""):
         return df
 
 
+def get_order_by_id(id: int):
+    with postgresql.session as session:
+        result = session.execute(
+            text(
+                """
+                SELECT 
+                    * 
+                FROM 
+                    v_orders
+                WHERE
+                    id = :id;
+                """
+            ),
+            {
+                "id": id
+            }
+        )
+
+        df = pd.DataFrame(result.fetchall(), columns=result.keys())
+        return df
+
+
 def get_order_items(dt: date, order_ids: list):
     if dt is not None:
         from_date = dt.strftime("%Y-%m-%d") + " 00:00:00"

@@ -1,5 +1,6 @@
 import streamlit as st
 import numpy as np
+from datetime import datetime
 
 @st.cache_resource
 def get_postgresql_connection():
@@ -94,7 +95,7 @@ def build_receipt_html(order: dict, items: list):
         <div style="text-align: center; font-size: 11px;">Mandalay, Myanmar<br>Tel: +95 9 974568557</div>
       
         <p>
-            <b>Date:</b> {order['date'].strftime('%d-%m-%Y')}<br>
+            <b>Date:</b> {datetime.strptime(str(order['date']), "%Y-%m-%d").strftime('%d-%m-%Y')}<br>
             <b>Order No:</b> {order['order_no']}<br>
             <b>Customer:</b> {order['customer_name']}
         </p>

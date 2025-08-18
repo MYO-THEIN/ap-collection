@@ -2,8 +2,9 @@ import streamlit as st
 import pandas as pd
 import math
 from datetime import datetime, date, timedelta
-from src.order import get_undelivered_orders, get_delivered_orders, get_order_items, update_delivery_status
-from src.utils import confirmation_dialog
+from src.order import get_undelivered_orders, get_delivered_orders, get_order_items, get_order_by_id, update_delivery_status
+from src.utils import confirmation_dialog, build_receipt_html
+from streamlit.components.v1 import html
 
 st.set_page_config(layout="centered")
 st.title("🚚 Delivery")
@@ -94,7 +95,8 @@ with tab1:
     # Customer filter
     elif filter_mode_undelivered == "Customer":
         search_term_undelivered = st.text_input(
-            label="🔎 Search Undelivered Order",
+            label="🔎 Search Undelivered Order", 
+            label_visibility="collapsed",
             max_chars=50
         )
         filter_value_undelivered = search_term_undelivered
@@ -155,9 +157,10 @@ with tab1:
                         unsafe_allow_html=True
                     )
 
-                    btn_col1, btn_col2 = st.columns(2)
+                    btn_col1, btn_col2, btn_col3 = st.columns(3)
+                    # Order Info Button
                     with btn_col1:
-                        if st.button("ℹ️", help="Order information", key=f"info_order_{rows.iloc[j]['id']}", use_container_width=True):
+                        if st.button("ℹ️", help="Order Info", key=f"info_order_{rows.iloc[j]['id']}", use_container_width=True):
                             display_order_info_dialog(
                                 id=rows.iloc[j]["id"],
                                 date=rows.iloc[j]["date"],
@@ -166,6 +169,7 @@ with tab1:
                                 customer_name=rows.iloc[j]["customer_name"],
                                 measurement=rows.iloc[j]['measurement']
                             )
+                    # Deliver Button
                     with btn_col2:
                         if st.button("🚛", help="Deliver", key=f"deliver_{rows.iloc[j]['id']}_{i}", use_container_width=True):
                             st.session_state["to_deliver_order_id"] = rows.iloc[j]["id"]
@@ -174,6 +178,13 @@ with tab1:
                                 yes_button_txt="✅ Yes, deliver", 
                                 no_button_txt="❌ Cancel"
                             )
+                    # Receipt Button
+                    with btn_col3:
+                        if st.button("🖨️", help="Print Receipt", key=f"receipt_{rows.iloc[j]['id']}_{i}", use_container_width=True):
+                            order = get_order_by_id(id=int(rows.iloc[j]["id"]))
+                            items = get_order_items(dt=None, order_ids=[int(rows.iloc[j]["id"])])
+                            receipt_html = build_receipt_html(order=order.iloc[0], items=items.to_dict(orient="records"))
+                            html(receipt_html, height=0, width=0)
     else:
         st.info("No data available 📭")
 

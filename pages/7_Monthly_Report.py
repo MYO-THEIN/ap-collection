@@ -537,7 +537,6 @@ def monthly_summary():
 
     with tab3:
         summary_df = orders_data \
-            .drop_duplicates(subset=["order_no"]) \
             .groupby(["date", "stock_category_name"]) \
             .agg(
                 quantity=("quantity", "sum"),
