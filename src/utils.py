@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 from datetime import datetime
+import bcrypt
 
 @st.cache_resource
 def get_postgresql_connection():
@@ -120,3 +121,7 @@ def build_receipt_html(order: dict, items: list):
     </html>
     """
     return html
+
+
+def hash_password(pwd: str):
+    return bcrypt.hashpw(pwd.encode("utf-8"), bcrypt.gensalt())
