@@ -1,7 +1,12 @@
 import streamlit as st
+import bcrypt
+import json
 import src.utils as utils
 from src.user import get_users
-import bcrypt
+from datetime import datetime, timedelta
+
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
 
 if "role_name" not in st.session_state:
     st.session_state["role_name"] = None
@@ -47,34 +52,45 @@ def show_sidebar():
     )
 
 
-def reset_session():
-    st.session_state.clear()
-
-
-st.set_page_config(page_title="AP Collection", page_icon="🌴", layout="centered")
+st.set_page_config(page_title="AP Collections", page_icon="🌴", layout="centered")
 
 # PostgreSQL connection
 st.session_state["postgresql"] = utils.get_postgresql_connection()
 
-# pages
+# About Us
 about_us_pg = st.Page(
     title="About Us", icon="🌟", page="pages/1_About_Us.py",
     default=st.session_state["role_name"] not in ["Staff", "Viewer"]
 )
+
+# Payment Type
 payment_type_pg = st.Page(title="Payment Type", icon="💰", page="pages/2_Payment_Type.py")
+
+# Stock Category
 stock_category_pg = st.Page(title="Stock Category", icon="👕", page="pages/3_Stock_Category.py")
+
+# Customer
 customer_pg = st.Page(title="Customer", icon="🧑", page="pages/4_Customer.py")
+
+# Order
 order_pg = st.Page(title="Order", icon="🛒", page="pages/5_Order.py")
+
+# Delivery
 delivery_pg = st.Page(
     title="Delivery", icon="🚚", page="pages/8_Delivery.py",
     default=st.session_state["role_name"] == "Staff"
 )
+
+# Daily Dashboard
 daily_dashboard_pg = st.Page(
     title="Daily Dashboard", icon="📊", page="pages/6_Daily_Dashboard.py",
     default=st.session_state["role_name"] == "Viewer"
 )
+
+# Monthly Report
 monthly_report_pg = st.Page(title="Monthly Report", icon="🗓️", page="pages/7_Monthly_Report.py")
 
+# Process Group
 pages_process = {
     "About Us": about_us_pg,
     "Payment Type": payment_type_pg,
@@ -84,15 +100,13 @@ pages_process = {
     "Delivery": delivery_pg
 }
 
+# Report Group
 pages_report = {
     "Daily Dashboard": daily_dashboard_pg,
     "Monthly Report": monthly_report_pg
 }
 
 users = get_users()
-
-if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
 
 if st.session_state["authenticated"] == False:
     # Login Form
@@ -130,10 +144,11 @@ if st.session_state["authenticated"] == False:
             if submitted:
                 result = check_credentials(users, username, password)
                 if result["valid"]:
+                    # save in session state
                     st.session_state["authenticated"] = True
                     st.session_state["user_name"] = result["user_name"]
                     st.session_state["role_name"] = result["role_name"]
-                    st.session_state["permissions"] = result["permissions"] 
+                    st.session_state["permissions"] = result["permissions"]
                     st.success("Login successful 🎉")
                     st.rerun()
                 else:
@@ -142,7 +157,8 @@ else:
     st.sidebar.success(f"Welcome, {st.session_state["user_name"]} 👋")
     logout = st.sidebar.button("🚪 Logout")
     if logout:
-        reset_session()
+        # clear the session state
+        st.session_state.clear()
         st.rerun()
 
     process_list = [p_obj for p_name, p_obj in pages_process.items() if p_name in st.session_state["permissions"].keys()]

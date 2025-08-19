@@ -3,10 +3,14 @@ attrs==25.3.0
 bcrypt==4.3.0
 blinker==1.9.0
 cachetools==6.1.0
+captcha==0.7.1
 certifi==2025.7.14
+cffi==1.17.1
 charset-normalizer==3.4.2
 click==8.2.1
 colorama==0.4.6
+cryptography==45.0.6
+extra-streamlit-components==0.1.81
 gitdb==4.0.12
 GitPython==3.1.45
 greenlet==3.2.3
@@ -25,9 +29,12 @@ protobuf==6.31.1
 psycopg2==2.9.10
 psycopg2-binary==2.9.10
 pyarrow==21.0.0
+pycparser==2.22
 pydeck==0.9.1
+PyJWT==2.10.1
 python-dateutil==2.9.0.post0
 pytz==2025.2
+PyYAML==6.0.2
 referencing==0.36.2
 reportlab==4.4.3
 requests==2.32.4

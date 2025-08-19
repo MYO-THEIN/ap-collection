@@ -3,27 +3,70 @@ import pandas as pd
 import src.customer as controller
 import forms.customer as customer_form
 
+# Authorization
+if st.session_state["authenticated"] == False:
+    st.session_state.clear()
+    st.rerun()
+else:
+    user_name, role_name = st.session_state["user_name"], st.session_state["role_name"]
+    permissions = st.session_state["permissions"]
+
+    if "Customer" in permissions.keys():
+        new_permission = permissions["Customer"]["new"]
+        edit_permission = permissions["Customer"]["edit"]
+        delete_permission = permissions["Customer"]["delete"]
+
 st.set_page_config(layout="centered")
 st.title("🧑 Customers")
 
 if "show_form" not in st.session_state:
     st.session_state["show_form"] = False
 
+trans_per_page = 20
+if "page" not in st.session_state:
+    st.session_state["page"] = 1
+if "last_filter_value" not in st.session_state:
+    st.session_state["last_filter_value"] = None
+
 # Search
 with st.spinner("Searching ..."):
     search_term = st.text_input("🔍 Search Customer")
     data = controller.get_customers(search_term)
 
+    # reset pagination if filter changes
+    if (search_term != st.session_state["last_filter_value"]):
+        st.session_state["page"] = 1
+    st.session_state["last_filter_value"] = search_term
+
     st.write("### Customers")
     if data.shape[0]:
-        for idx, row in data.iterrows():
+        # pagination
+        total_pages = (len(data) - 1) // trans_per_page + 1
+        col1, col2, col3 = st.columns([1, 3, 1], vertical_alignment="center")
+        with col1:
+            if st.button("⬅ Prev", use_container_width=True) and st.session_state["page"] > 1:
+                st.session_state["page"] = st.session_state["page"] - 1
+        with col3:
+            if st.button("Next ➡", use_container_width=True) and st.session_state["page"] < total_pages:
+                st.session_state["page"] = st.session_state["page"] + 1  
+        with col2:
+            st.markdown(
+                f"<div style='text-align: center;'>Page {st.session_state['page']} of {total_pages}</div>",
+                unsafe_allow_html=True
+            )
+
+        start = (st.session_state["page"] - 1) * trans_per_page
+        end = start + trans_per_page
+        paginated_data = data[start : end]
+
+        for idx, row in paginated_data.iterrows():
             cols = st.columns([1, 1, 1, 1, 1, 1])
             cols[0].write(f"**{row['serial_no']}**")
             cols[1].write(f"**{row['name']}**")
             cols[2].write(row['city'])
             cols[3].write(row['country'])
 
-            if cols[4].button("✏️ Edit", key=f"edit_{row['id']}", use_container_width=True):
+            if cols[4].button("✏️ Edit", key=f"edit_{row['id']}", use_container_width=True, disabled=not edit_permission):
                 st.session_state["edit_id"] = row["id"]
                 st.session_state["edit_serial_no"] = row["serial_no"]
                 st.session_state["edit_name"] = row["name"]
@@ -34,7 +77,7 @@ with st.spinner("Searching ..."):
                 st.session_state["edit_state_region"] = row["state_region"]
                 st.session_state["edit_country"] = row["country"]
 
-            if cols[5].button("🗑️ Delete", key=f"delete_{row['id']}", use_container_width=True):
+            if cols[5].button("🗑️ Delete", key=f"delete_{row['id']}", use_container_width=True, disabled=not delete_permission):
                 controller.delete_customer(row["id"])
                 st.session_state["show_success"] = True
                 st.session_state["show_success_msg"] = "Deleted successfully."
@@ -66,8 +109,9 @@ def customer_form_callback(data=None):
         st.rerun()
 
 # Add New Form
-if st.button("➕ Add New Customer"):
-    st.session_state["show_form"] = True
+if new_permission:
+    if st.button("➕ Add New Customer"):
+        st.session_state["show_form"] = True
 
 # Edit Form
 if "edit_id" in st.session_state:

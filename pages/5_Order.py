@@ -6,6 +6,20 @@ import forms.order as order_form
 import src.utils as utils
 from streamlit.components.v1 import html
 
+# Authorization
+if st.session_state["authenticated"] == False:
+    st.session_state.clear()
+    st.rerun()
+else:
+    user_name, role_name = st.session_state["user_name"], st.session_state["role_name"]
+    permissions = st.session_state["permissions"]
+
+    if "Order" in permissions.keys():
+        new_permission = permissions["Order"]["new"]
+        edit_permission = permissions["Order"]["edit"]
+        delete_permission = permissions["Order"]["delete"]
+        receipt_permission = permissions["Order"]["receipt"]
+
 st.set_page_config(layout="centered")
 st.title("🛒 Orders")
 
@@ -86,7 +100,7 @@ with st.spinner("Searching ..."):
                 
                 # Edit Button
                 with col_edit:
-                    if st.button(label="✏️", help="Edit Order", key=f"edit_{row['id']}", use_container_width=True):
+                    if st.button(label="✏️", help="Edit Order", key=f"edit_{row['id']}", use_container_width=True, disabled=not edit_permission):
                         st.session_state["edit_id"] = row["id"]
                         st.session_state["edit_date"] = row["date"]
                         st.session_state["edit_order_no"] = row["order_no"]                        
@@ -114,7 +128,7 @@ with st.spinner("Searching ..."):
 
                 # Delete Button
                 with col_delete:
-                    if st.button(label="🗑️", help="Delete Order", key=f"delete_{row['id']}", use_container_width=True, disabled=True):
+                    if st.button(label="🗑️", help="Delete Order", key=f"delete_{row['id']}", use_container_width=True, disabled=not delete_permission):
                         controller.delete_order(row["id"])
                         st.session_state["show_success"] = True
                         st.session_state["show_success_msg"] = "Deleted successfully."
@@ -122,7 +136,7 @@ with st.spinner("Searching ..."):
 
                 # Receipt Button
                 with col_receipt:
-                    if st.button(label="🖨️", help="Print Receipt", key=f"receipt_{row['id']}", use_container_width=True):
+                    if st.button(label="🖨️", help="Print Receipt", key=f"receipt_{row['id']}", use_container_width=True, disabled=not receipt_permission):
                         receipt_html = utils.build_receipt_html(order=row.to_dict(), items=items.to_dict(orient="records"))
                         html(receipt_html, height=0, width=0)
 
@@ -195,9 +209,10 @@ def order_form_callback(data=None):
     st.rerun()
 
 # Add New Form
-if st.button("➕ Add New Order"):
-    clear_all_inputs()
-    st.session_state["show_form"] = True
+if new_permission:
+    if st.button("➕ Add New Order"):
+        clear_all_inputs()
+        st.session_state["show_form"] = True
 
 # Edit Form
 if "edit_id" in st.session_state:

@@ -6,6 +6,18 @@ from src.order import get_undelivered_orders, get_delivered_orders, get_order_it
 from src.utils import confirmation_dialog, build_receipt_html
 from streamlit.components.v1 import html
 
+# Authorization
+if st.session_state["authenticated"] == False:
+    st.session_state.clear()
+    st.rerun()
+else:
+    user_name, role_name = st.session_state["user_name"], st.session_state["role_name"]
+    permissions = st.session_state["permissions"]
+
+    if "Delivery" in permissions.keys():
+        deliver_permission = permissions["Delivery"]["deliver"]
+        receipt_permission = permissions["Delivery"]["receipt"]
+
 st.set_page_config(layout="centered")
 st.title("🚚 Delivery")
 
@@ -171,7 +183,7 @@ with tab1:
                             )
                     # Deliver Button
                     with btn_col2:
-                        if st.button("🚛", help="Deliver", key=f"deliver_{rows.iloc[j]['id']}_{i}", use_container_width=True):
+                        if st.button("🚛", help="Deliver", key=f"deliver_{rows.iloc[j]['id']}_{i}", use_container_width=True, disabled=not deliver_permission):
                             st.session_state["to_deliver_order_id"] = rows.iloc[j]["id"]
                             confirmation_dialog(
                                 msg="Are you sure to deliver this order?", 
@@ -180,7 +192,7 @@ with tab1:
                             )
                     # Receipt Button
                     with btn_col3:
-                        if st.button("🖨️", help="Print Receipt", key=f"receipt_{rows.iloc[j]['id']}_{i}", use_container_width=True):
+                        if st.button("🖨️", help="Print Receipt", key=f"receipt_{rows.iloc[j]['id']}_{i}", use_container_width=True, disabled=not receipt_permission):
                             order = get_order_by_id(id=int(rows.iloc[j]["id"]))
                             items = get_order_items(dt=None, order_ids=[int(rows.iloc[j]["id"])])
                             receipt_html = build_receipt_html(order=order.iloc[0], items=items.to_dict(orient="records"))
