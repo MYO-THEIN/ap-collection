@@ -101,9 +101,24 @@ if st.session_state["authenticated"] == False:
     with col2:
         st.markdown(
             """
-            <div style="background-color: #f5f5f5; padding: 40px; border-radius: 15px; box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1)">
-            <h3 style="text-align: center;">🌴 AP Collection</h3>
-            """, 
+            <div style="
+                background: linear-gradient(135deg, #e0f7fa, #fce4ec);
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+                text-align: center;
+            ">
+                <h3 style="
+                    font-family: 'Trebuchet MS', sans-serif;
+                    font-size: 26px;
+                    color: #333;
+                    margin: 0;
+                ">🌴 AP Collection</h3>
+                <p style="color: #666; font-size: 14px; margin-top: 8px;">
+                    Find Your Inner Diva with AP Collection
+                </p>
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
@@ -123,8 +138,6 @@ if st.session_state["authenticated"] == False:
                     st.rerun()
                 else:
                     st.error("Invalid username/password ❌")
-
-        st.markdown("</div>", unsafe_allow_html=True)
 else:
     st.sidebar.success(f"Welcome, {st.session_state["user_name"]} 👋")
     logout = st.sidebar.button("🚪 Logout")
