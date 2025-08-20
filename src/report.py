@@ -14,9 +14,37 @@ def get_orders(from_date: date, to_date: date):
         result = session.execute(
             text(
                 """
-                SELECT * 
-                FROM v_orders_overall
-                WHERE date BETWEEN :from_date AND :to_date;
+                SELECT 
+                    * 
+                FROM 
+                    v_orders_overall
+                WHERE 
+                    date BETWEEN :from_date AND :to_date;
+                """
+            ),
+            {
+                "from_date": from_date,
+                "to_date": to_date
+            }
+        )
+
+        df = pd.DataFrame(result.fetchall(), columns=result.keys())
+        return df
+
+def get_expenses(from_date: date, to_date: date):
+    with postgresql.session as session:
+        result = session.execute(
+            text(
+                """
+                SELECT
+                    date,
+                    expense_type_id,
+                    expense_type_name,
+                    amount
+                FROM 
+                    v_expenses
+                WHERE 
+                    date BETWEEN :from_date AND :to_date;
                 """
             ),
             {

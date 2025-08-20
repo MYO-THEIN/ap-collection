@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 from datetime import datetime, date, timedelta
 import calendar
 import src.utils as utils
-from src.report import get_orders
+from src.report import get_orders, get_expenses
 
 st.set_page_config(layout="wide")
 
@@ -28,11 +28,17 @@ filtered_month = st.sidebar.selectbox(
     index=date.today().month - 1
 )
 if filtered_year and filtered_month:
+    # current month
     last_day_of_month = calendar.monthrange(int(filtered_year), int(filtered_month))[1]
     from_date = datetime.strptime(f"{filtered_year}-{filtered_month}-01 00:00:00", "%Y-%m-%d %H:%M:%S")
     to_date = datetime.strptime(f"{filtered_year}-{filtered_month}-{last_day_of_month} 23:59:59", "%Y-%m-%d %H:%M:%S")
     orders_data = get_orders(from_date, to_date)
+    
+    # current expenses
+    expenses_data = get_expenses(from_date, to_date)
+    expenses_data = expenses_data.groupby(["expense_type_id", "expense_type_name"], as_index=False).sum("amount")
 
+    # previous month
     prev_month = date(int(filtered_year), int(filtered_month), 1) - timedelta(days=1)
     from_date = datetime.strptime(f"{prev_month.year}-{prev_month.month}-01 00:00:00", "%Y-%m-%d %H:%M:%S")
     to_date = datetime.strptime(f"{prev_month.year}-{prev_month.month}-{prev_month.day} 23:59:59", "%Y-%m-%d %H:%M:%S")
@@ -207,8 +213,8 @@ def quantity_and_amount_by_stock_category():
     st.divider()
 
 
-# Payment Type Insights
-def payment_type_insights():
+# Payment Insights
+def payment_insights():
     agg_payment_type = orders_data.drop_duplicates(subset=["order_no"]).groupby(["date", "payment_type_name"]).agg({
         "paid_amount": "sum"
     }).reset_index()
@@ -302,6 +308,43 @@ def payment_type_insights():
             )
         )
         st.plotly_chart(stacked_bar_payment_type, use_container_width=True)
+
+    st.divider()
+
+
+# Expense Insights
+def expense_insights():
+    st.markdown("💸 Expenses by Type")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Treemap
+        fig_treemap = px.treemap(
+            expenses_data, 
+            path=["expense_type_name"], 
+            values="amount"
+        ).update_traces(
+            hovertemplate=(
+                "<b>%{label}</b><br>"
+                "%{value:,.0f}"
+            )
+        )
+        st.plotly_chart(fig_treemap, use_container_width=True)
+
+    with col2:
+        # Radar chart
+        fig_radar = go.Figure()
+        fig_radar.add_trace(go.Scatterpolar(
+            r=expenses_data["amount"],
+            theta=expenses_data["expense_type_name"],
+            fill="toself",
+            name="Expenses",
+            hovertemplate="<b>%{theta}</b><br>%{r:,.0f}<extra></extra>"
+        ))
+        fig_radar.update_layout(
+            polar=dict(radialaxis=dict(visible=True))
+        )
+        st.plotly_chart(fig_radar, use_container_width=True)
 
     st.divider()
 
@@ -571,7 +614,8 @@ if orders_data.shape[0]:
     kpi_metrics()
     daily_quantity_and_revenue()
     quantity_and_amount_by_stock_category()
-    payment_type_insights()
+    payment_insights()
+    expense_insights()
     this_month_vs_last_month()
     monthly_summary()
 else:

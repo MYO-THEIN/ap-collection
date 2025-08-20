@@ -81,6 +81,12 @@ delivery_pg = st.Page(
     default=st.session_state["role_name"] == "Staff"
 )
 
+# Expense Type
+expense_type_pg = st.Page(title="Expense Type", icon="🧾", page="pages/9_Expense_Type.py")
+
+# Expense
+expense_pg = st.Page(title="Expense", icon="💸", page="pages/10_Expense.py")
+
 # Daily Dashboard
 daily_dashboard_pg = st.Page(
     title="Daily Dashboard", icon="📊", page="pages/6_Daily_Dashboard.py",
@@ -97,7 +103,9 @@ pages_process = {
     "Stock Category": stock_category_pg,
     "Customer": customer_pg,
     "Order": order_pg,
-    "Delivery": delivery_pg
+    "Delivery": delivery_pg,
+    "Expense Type": expense_type_pg,
+    "Expense": expense_pg
 }
 
 # Report Group
