@@ -318,15 +318,21 @@ def payment_insights():
 def expense_insights():
     if expenses_data.shape[0] == 0:
         return
-
+    
     st.markdown("💸 Expenses by Type")
     col1, col2 = st.columns(2)
     
     with col1:
+        df_treemap = expenses_data.copy()
+
+        if expenses_data.shape[0] == 1:
+            dummy_row = pd.DataFrame([{"expense_type_name": "dummy", "amount": 0}])
+            df_treemap = pd.concat([expenses_data, dummy_row], ignore_index=True)
+
         # Treemap
         fig_treemap = px.treemap(
-            expenses_data, 
-            path=["expense_type_name"], 
+            df_treemap,  # expenses_data, 
+            path=["expense_type_name"],
             values="amount"
         ).update_traces(
             hovertemplate=(

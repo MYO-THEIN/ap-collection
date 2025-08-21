@@ -5,7 +5,7 @@ import src.utils as utils
 from src.user import get_users
 from datetime import datetime, timedelta
 
-st.set_page_config(page_title="AP Collections", page_icon="🌴", layout="wide")
+st.set_page_config(page_title="AP Collections", page_icon="🌴")
 
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
@@ -126,7 +126,7 @@ if st.session_state["authenticated"] == False:
             """
             <style>
             .block-container {
-                max-width: 900px;
+                max-width: 600px;
                 margin: auto;
             }
             </style>
@@ -138,19 +138,19 @@ if st.session_state["authenticated"] == False:
             """
             <div style="
                 background: linear-gradient(135deg, #e0f7fa, #fce4ec);
-                padding: 40px;
+                padding: 20px;
                 border-radius: 20px;
                 box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
                 text-align: center;
             ">
                 <h3 style="
                     font-family: 'Trebuchet MS', sans-serif;
-                    font-size: 26px;
+                    font-size: 21px;
                     color: #333;
                     margin: 0;
-                ">🌴 AP Collection</h3>
+                ">🌴 AP Collections</h3>
                 <p style="color: #666; font-size: 14px; margin-top: 8px;">
-                    Find Your Inner Diva with AP Collection
+                    Find Your Inner Diva with AP Collections
                 </p>
             </div>
             """,

@@ -2,8 +2,8 @@ import streamlit as st
 import numpy as np
 import plotly.express as px
 from datetime import datetime, date, timedelta
-from src.report import get_orders
 import src.utils as utils
+from src.report import get_orders
 
 st.set_page_config(layout="wide")
 

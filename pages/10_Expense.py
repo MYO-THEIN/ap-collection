@@ -6,19 +6,6 @@ import forms.expense as expense_form
 
 st.set_page_config(layout="centered")
 
-# centered
-# st.markdown(
-#     """
-#     <style>
-#     .block-container {
-#         max-width: 900px;
-#         margin: auto;
-#     }
-#     </style>
-#     """,
-#     unsafe_allow_html=True
-# )
-
 # Authorization
 if st.session_state["authenticated"] == False:
     st.session_state.clear()
