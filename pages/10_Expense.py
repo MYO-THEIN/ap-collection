@@ -4,6 +4,21 @@ from datetime import datetime, timedelta
 import src.expense as controller
 import forms.expense as expense_form
 
+st.set_page_config(layout="centered")
+
+# centered
+# st.markdown(
+#     """
+#     <style>
+#     .block-container {
+#         max-width: 900px;
+#         margin: auto;
+#     }
+#     </style>
+#     """,
+#     unsafe_allow_html=True
+# )
+
 # Authorization
 if st.session_state["authenticated"] == False:
     st.session_state.clear()
@@ -17,7 +32,6 @@ else:
         edit_permission = permissions["Expense"]["edit"]
         delete_permission = permissions["Expense"]["delete"]
 
-st.set_page_config(layout="centered")
 st.title("💸 Expense")
 
 if "show_form" not in st.session_state:

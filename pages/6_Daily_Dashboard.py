@@ -46,6 +46,7 @@ def kpi_metrics():
     col3.metric("💰 Revenue", f"{total_revenue:,}", delta=f"{utils.percentage_change(total_revenue, prev_revenue):.2f}%")
     col4.metric("🚚 Delivery Charges", f"{total_delivery_charges:,}")
     col5.metric("💸 Discount", f"{total_discount:,}")
+    
     st.divider()
 
 

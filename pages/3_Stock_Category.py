@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import src.stock_category as controller
 
+st.set_page_config(layout="centered")
+
 # Authorization
 if st.session_state["authenticated"] == False:
     st.session_state.clear()
@@ -15,7 +17,6 @@ else:
         edit_permission = permissions["Stock Category"]["edit"]
         delete_permission = permissions["Stock Category"]["delete"]
 
-st.set_page_config(layout="centered")
 st.title("👕 Stock Categories")
 
 # Search

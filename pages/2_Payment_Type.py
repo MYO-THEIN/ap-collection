@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import src.payment_type as controller
 
+st.set_page_config(layout="centered")
+
 # Authorization
 if st.session_state["authenticated"] == False:
     st.session_state.clear()
@@ -15,7 +17,6 @@ else:
         edit_permission = permissions["Payment Type"]["edit"]
         delete_permission = permissions["Payment Type"]["delete"]
 
-st.set_page_config(layout="centered")
 st.title("💰 Payment Types")
 
 # Search

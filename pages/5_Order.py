@@ -6,6 +6,8 @@ import forms.order as order_form
 import src.utils as utils
 from streamlit.components.v1 import html
 
+st.set_page_config(layout="centered")
+
 # Authorization
 if st.session_state["authenticated"] == False:
     st.session_state.clear()
@@ -20,7 +22,6 @@ else:
         delete_permission = permissions["Order"]["delete"]
         receipt_permission = permissions["Order"]["receipt"]
 
-st.set_page_config(layout="centered")
 st.title("🛒 Orders")
 
 if "show_form" not in st.session_state:

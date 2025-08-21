@@ -5,6 +5,8 @@ import src.utils as utils
 from src.user import get_users
 from datetime import datetime, timedelta
 
+st.set_page_config(page_title="AP Collections", page_icon="🌴", layout="wide")
+
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
@@ -51,8 +53,6 @@ def show_sidebar():
         unsafe_allow_html=True
     )
 
-
-st.set_page_config(page_title="AP Collections", page_icon="🌴", layout="centered")
 
 # PostgreSQL connection
 st.session_state["postgresql"] = utils.get_postgresql_connection()
@@ -121,6 +121,19 @@ if st.session_state["authenticated"] == False:
     hide_sidebar()
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
+        # centered
+        st.markdown(
+            """
+            <style>
+            .block-container {
+                max-width: 900px;
+                margin: auto;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
         st.markdown(
             """
             <div style="
@@ -176,6 +189,6 @@ else:
         pg = st.navigation({
             "Process": process_list,
             "Report": report_list
-        },)
+        }, position="top")
 
         pg.run()

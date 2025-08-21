@@ -6,6 +6,8 @@ from src.order import get_undelivered_orders, get_delivered_orders, get_order_it
 from src.utils import confirmation_dialog, build_receipt_html
 from streamlit.components.v1 import html
 
+st.set_page_config(layout="centered")
+
 # Authorization
 if st.session_state["authenticated"] == False:
     st.session_state.clear()
@@ -18,7 +20,6 @@ else:
         deliver_permission = permissions["Delivery"]["deliver"]
         receipt_permission = permissions["Delivery"]["receipt"]
 
-st.set_page_config(layout="centered")
 st.title("🚚 Delivery")
 
 orders_per_page = 16
