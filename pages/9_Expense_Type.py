@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import src.expense_type as controller
+from src.utils import confirmation_dialog
 
 st.set_page_config(layout="centered")
 
@@ -35,10 +36,12 @@ with st.spinner("Searching ..."):
                 st.session_state["edit_name"] = row["name"]
 
             if cols[2].button("🗑️ Delete", key=f"delete_{row['id']}", use_container_width=True, disabled=not delete_permission):
-                controller.delete_expense_type(row["id"])
-                st.session_state["show_success"] = True
-                st.session_state["show_success_msg"] = "Deleted successfully."
-                st.rerun()
+                st.session_state["to_delete_expense_type_id"] = row["id"]
+                confirmation_dialog(
+                    msg="Are you sure to delete this expense type?", 
+                    yes_button_txt="✅ Yes, delete", 
+                    no_button_txt="❌ Cancel"
+                )
     else:
         st.write("No data available 📭")
 
@@ -82,3 +85,18 @@ if "show_success" in st.session_state and st.session_state["show_success"]:
     st.success(st.session_state["show_success_msg"], icon=":material/thumb_up:")
     del st.session_state["show_success"]
     del st.session_state["show_success_msg"]
+
+# Delete confirmed and good to go 
+if "confirmed_action" in st.session_state:
+    if st.session_state["confirmed_action"] == True and "to_delete_expense_type_id" in st.session_state:
+        success = controller.delete_expense_type(st.session_state["to_delete_expense_type_id"])
+
+        if success:
+            st.session_state["show_success"] = True
+            st.session_state["show_success_msg"] = "Deleted successfully."
+            del st.session_state["confirmed_action"]
+            del st.session_state["to_delete_expense_type_id"]
+        else:
+            st.session_state["show_error"] = True
+            st.session_state["show_error_msg"] = "Deleting an expense type has failed due to some errors."
+        st.rerun()

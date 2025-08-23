@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import src.expense as controller
 import forms.expense as expense_form
+from src.utils import confirmation_dialog
 
 st.set_page_config(layout="centered")
 
@@ -101,10 +102,12 @@ with st.spinner("Searching ..."):
                 # Delete Button
                 with col_delete:
                     if st.button(label="🗑️", help="Delete Expense", key=f"delete_{row['id']}", use_container_width=True, disabled=not delete_permission):
-                        controller.delete_expense(row["id"])
-                        st.session_state["show_success"] = True
-                        st.session_state["show_success_msg"] = "Deleted successfully."
-                        st.rerun()
+                        st.session_state["to_delete_expense_id"] = row["id"]
+                        confirmation_dialog(
+                            msg="Are you sure to delete this expense?", 
+                            yes_button_txt="✅ Yes, delete", 
+                            no_button_txt="❌ Cancel"
+                        )
 
             with st.expander(label="📋 Description"):
                 if row["description"]:
@@ -168,3 +171,18 @@ elif "show_error" in st.session_state and st.session_state["show_error"]:
     st.error(st.session_state["show_error_msg"], icon=":material/thumb_down:")
     del st.session_state["show_error"]
     del st.session_state["show_error_msg"]
+
+# Delete confirmed and good to go 
+if "confirmed_action" in st.session_state:
+    if st.session_state["confirmed_action"] == True and "to_delete_expense_id" in st.session_state:
+        success = controller.delete_expense(st.session_state["to_delete_expense_id"])
+
+        if success:
+            st.session_state["show_success"] = True
+            st.session_state["show_success_msg"] = "Deleted successfully."
+            del st.session_state["confirmed_action"]
+            del st.session_state["to_delete_expense_id"]
+        else:
+            st.session_state["show_error"] = True
+            st.session_state["show_error_msg"] = "Deleting an expense has failed due to some errors."
+        st.rerun()

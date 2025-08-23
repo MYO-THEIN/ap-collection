@@ -41,11 +41,29 @@ def kpi_metrics():
     total_discount = orders_data.groupby("id")["discount"].first().sum()
 
     col1, col2, col3, col4, col5 = st.columns(5)
-    col1.metric("🧾 Orders", total_orders, delta=f"{utils.percentage_change(total_orders, prev_orders):.2f}%")
-    col2.metric("📦 Quantity", total_quantity, delta=f"{utils.percentage_change(total_quantity, prev_quantity):.2f}%")
-    col3.metric("💰 Revenue", f"{total_revenue:,}", delta=f"{utils.percentage_change(total_revenue, prev_revenue):.2f}%")
-    col4.metric("🚚 Delivery Charges", f"{total_delivery_charges:,}")
-    col5.metric("💸 Discount", f"{total_discount:,}")
+    col1.metric(
+        "🧾 Orders", total_orders, 
+        delta=f"{utils.percentage_change(total_orders, prev_orders):.2f}%",
+        border=True
+    )
+    col2.metric(
+        "📦 Quantity", total_quantity, 
+        delta=f"{utils.percentage_change(total_quantity, prev_quantity):.2f}%",
+        border=True
+    )
+    col3.metric(
+        "💰 Revenue", f"{total_revenue:,}", 
+        delta=f"{utils.percentage_change(total_revenue, prev_revenue):.2f}%",
+        border=True
+    )
+    col4.metric(
+        "🚚 Delivery Charges", f"{total_delivery_charges:,}",
+        border=True
+    )
+    col5.metric(
+        "💸 Discount", f"{total_discount:,}",
+        border=True
+    )
     
     st.divider()
 
