@@ -9,7 +9,6 @@ st.set_page_config(page_title="AP Collections", page_icon="🌴")
 
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
-
 if "role_name" not in st.session_state:
     st.session_state["role_name"] = None
 
@@ -31,7 +30,6 @@ def check_credentials(users, username, password):
 
     return result
 
-
 def hide_sidebar():
     st.markdown(
         """
@@ -41,7 +39,6 @@ def hide_sidebar():
         """,
         unsafe_allow_html=True
     )
-
 
 def show_sidebar():
     st.markdown(
@@ -56,6 +53,7 @@ def show_sidebar():
 
 # PostgreSQL connection
 st.session_state["postgresql"] = utils.get_postgresql_connection()
+
 
 # About Us
 about_us_pg = st.Page(
@@ -96,6 +94,9 @@ daily_dashboard_pg = st.Page(
 # Monthly Report
 monthly_report_pg = st.Page(title="Monthly Report", icon="🗓️", page="pages/7_Monthly_Report.py")
 
+# Income Statement
+income_statement_pg = st.Page(title="Income Statement", icon="💼", page="pages/11_Income_Statement.py")
+
 # Process Group
 pages_process = {
     "About Us": about_us_pg,
@@ -111,7 +112,8 @@ pages_process = {
 # Report Group
 pages_report = {
     "Daily Dashboard": daily_dashboard_pg,
-    "Monthly Report": monthly_report_pg
+    "Monthly Report": monthly_report_pg,
+    "Income Statement": income_statement_pg
 }
 
 users = get_users()
