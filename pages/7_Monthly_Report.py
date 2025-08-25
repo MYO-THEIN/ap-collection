@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import altair as alt
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, date, timedelta
@@ -13,6 +11,12 @@ st.set_page_config(layout="wide")
 
 if "orders_data" in st.session_state:
     del st.session_state["orders_data"]
+if "prev_data" in st.session_state:
+    del st.session_state["prev_data"]
+if "expenses_data" in st.session_state:
+    del st.session_state["expenses_data"]
+if "prev_expenses_data" in st.session_state:
+    del st.session_state["prev_expenses_data"]
 
 # Filters
 st.sidebar.header("🔎 Filters")
@@ -44,6 +48,10 @@ if filtered_year and filtered_month:
     to_date = datetime.strptime(f"{prev_month.year}-{prev_month.month}-{prev_month.day} 23:59:59", "%Y-%m-%d %H:%M:%S")
     prev_data = get_orders(from_date, to_date)
 
+    # previous expenses
+    prev_expenses_data = get_expenses(from_date, to_date)
+    prev_expenses_data = prev_expenses_data.groupby(["expense_type_id", "expense_type_name"], as_index=False).sum("amount")
+
     prev_month_name = calendar.month_abbr[prev_month.month]
     current_month_name = calendar.month_abbr[int(filtered_month)]
 
@@ -54,6 +62,9 @@ def kpi_metrics():
     prev_orders = prev_data["id"].nunique()
     prev_quantity = prev_data["quantity"].sum()
     prev_revenue = prev_data.groupby("id")["paid_amount"].first().sum()
+    prev_delivery_charges = prev_data.groupby("id")["delivery_charges"].first().sum()
+    prev_discount = prev_data.groupby("id")["discount"].first().sum()
+    prev_expenses = prev_expenses_data["amount"].sum() if prev_expenses_data.shape[0] else 0
 
     # Current Month
     total_orders = orders_data["id"].nunique()
@@ -63,7 +74,8 @@ def kpi_metrics():
     total_discount = orders_data.groupby("id")["discount"].first().sum()
     total_expenses = expenses_data["amount"].sum() if expenses_data.shape[0] else 0
 
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
+    # Orders, Quantity, Revenue
+    col1, col2, col3 = st.columns(3)
     col1.metric(
         "🧾 Orders", total_orders, 
         delta=f"{utils.percentage_change(total_orders, prev_orders):.2f}%",
@@ -79,16 +91,25 @@ def kpi_metrics():
         delta=f"{utils.percentage_change(total_revenue, prev_revenue):.2f}%",
         border=True
     )
-    col4.metric(
+
+    # Delivery Charges, Discount, Expenses
+    col1, col2, col3 = st.columns(3)
+    col1.metric(
         "🚚 Delivery Charges", f"{total_delivery_charges:,}",
+        delta=f"{utils.percentage_change(total_delivery_charges, prev_delivery_charges):.2f}%",
+        delta_color="inverse",
         border=True
     )
-    col5.metric(
+    col2.metric(
         "➖ Discount", f"{total_discount:,}",
+        delta=f"{utils.percentage_change(total_discount, prev_discount):.2f}%",
+        delta_color="inverse",
         border=True
     )
-    col6.metric(
+    col3.metric(
         "💸 Expenses", f"{total_expenses / 1e5:.1f} L",
+        delta=f"{utils.percentage_change(total_expenses, prev_expenses):.2f}%",
+        delta_color="inverse",
         border=True
     )
 

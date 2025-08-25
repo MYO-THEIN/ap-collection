@@ -40,7 +40,8 @@ def kpi_metrics():
     total_delivery_charges = orders_data.groupby("id")["delivery_charges"].first().sum()
     total_discount = orders_data.groupby("id")["discount"].first().sum()
 
-    col1, col2, col3, col4, col5 = st.columns(5)
+    # Orders, Quantity, Revenue
+    col1, col2, col3 = st.columns(3) 
     col1.metric(
         "🧾 Orders", total_orders, 
         delta=f"{utils.percentage_change(total_orders, prev_orders):.2f}%",
@@ -56,11 +57,14 @@ def kpi_metrics():
         delta=f"{utils.percentage_change(total_revenue, prev_revenue):.2f}%",
         border=True
     )
-    col4.metric(
+
+    # Delivery Charges, Discount
+    col1, col2, col3 = st.columns(3)
+    col1.metric(
         "🚚 Delivery Charges", f"{total_delivery_charges:,}",
         border=True
     )
-    col5.metric(
+    col2.metric(
         "💸 Discount", f"{total_discount:,}",
         border=True
     )
