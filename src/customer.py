@@ -8,7 +8,7 @@ if "postgresql" not in st.session_state:
 postgresql = st.session_state["postgresql"]
 
 
-def get_customers(search_term: str=""):
+def get_customers(search_term: str="", limit: int=None):
     with postgresql.session as session:
         if search_term:
             result = session.execute(
@@ -39,7 +39,7 @@ def get_customers(search_term: str=""):
             )
 
         df = pd.DataFrame(result.fetchall(), columns=result.keys())
-        return df
+        return df if limit is None else df.iloc[:limit]
 
 
 def get_customer_by_id(id: int):

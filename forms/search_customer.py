@@ -10,8 +10,10 @@ def search_customer_modal(sel_id: int=None, sel_serial_no: str=None, sel_name: s
             max_chars=5
         )
 
-        customers = controller.get_customers(search_term)
-        if customers.shape[0]:
+        limit = 5 if search_term == "" else None
+
+        customers = controller.get_customers(search_term, limit)
+        if not customers.empty:
             for _, customer in customers.iterrows():
                 is_selected = sel_id is not None and customer["id"] == sel_id
                 # serial_no, name, phone

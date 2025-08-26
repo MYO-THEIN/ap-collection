@@ -44,74 +44,65 @@ month_names = {
     9: "SEP", 10: "OCT", 11: "NOV", 12: "DEC"
 }
 
-def render_month_card(mth):
-    inc = orders_data[orders_data["month"] == mth]
-    exp = expenses_data[expenses_data["month"] == mth]
+month_emojis = {
+    1: "①", 2: "②", 3: "③", 4: "④",
+    5: "⑤", 6: "⑥", 7: "⑦", 8: "⑧",
+    9: "⑨", 10: "⑩", 11: "⑪", 12: "⑫"
+}
+
+annual_income = orders_data["paid_amount"].sum() if not orders_data.empty else 0
+annual_expense = expenses_data["amount"].sum() if not expenses_data.empty else 0
+annual_net = annual_income - annual_expense
+
+def month_block(month):
+    inc = orders_data[orders_data["month"] == month]
+    exp = expenses_data[expenses_data["month"] == month]
     ttl_inc = inc["paid_amount"].sum()
     ttl_exp = exp["amount"].sum()
     net = ttl_inc - ttl_exp
-    net_class = "net-positive" if net >= 0 else "net-negative"
 
-    card_html = f"<div class='month-card'><div class='month-title'>{month_names[mth]}</div>"
+    st.subheader(f"{month_emojis[month]} {month_names[month]}")
 
-    # Incomes
-    if not inc.empty:
-        card_html += f"<b>Income</b> <h3>{ttl_inc:,.0f}</h3><ul>"
-        for _, row in inc.iterrows():
-            card_html += f"<li>{row['payment_type_name']}: {row['paid_amount']:,.0f}</li>"
-        card_html += "</ul>"
-    else:
-        card_html += "<b>Income</b><br>No data<br>"
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("💰 Income", f"{ttl_inc :,.0f}")
+        if not inc.empty:
+            for _, row in inc.iterrows():
+                st.write(f"• {row['payment_type_name']}: **{row['paid_amount'] :,.0f}**")
+        else:
+            st.info("No data")
 
-    # Expenses
-    if not exp.empty:
-        card_html += f"<b>Expense</b> <h3>{ttl_exp:,.0f}</h3><ul>"
-        for _, row in exp.iterrows():
-            card_html += f"<li>{row['expense_type_name']}: {row['amount']:,.0f}</li>"
-        card_html += "</ul>"
-    else:
-        card_html += "<b>Expense</b><br>No data<br>"
+    with col2:
+        st.metric("💸 Expense", f"{ttl_exp :,.0f}")
+        if not exp.empty:
+            for _, row in exp.iterrows():
+                st.write(f"• {row['expense_type_name']}: **{row['amount'] :,.0f}**")
+        else:
+            st.info("No data")
 
-    card_html += f"<b>Net</b> <h3 class='{net_class}'>{net:,.0f}</h3></div>"
-    st.markdown(card_html, unsafe_allow_html=True)
+    st.metric("💹 Net", f"{net :,.0f}", delta_color="inverse" if net < 0 else "normal")
 
 
-st.markdown(f"<h3 style='text-align: center;'>Income Statement for Year {filtered_year}</h3>", unsafe_allow_html=True)
+st.title(f"💼 Income Statement {filtered_year}")
 st.markdown("---")
 
-# ---- CSS for card style
-st.markdown(
-    """
-    <style>
-    .month-card {
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 15px;
-        margin: 5px 0;
-        background-color: #fafafa;
-        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    .month-title {
-        font-size: 20px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        text-align: center;
-    }
-    .net-positive {
-        color: green;
-    }
-    .net-negative {
-        color: red;
-    }
-    </style>
-    """, 
-    unsafe_allow_html=True
-)
+# Annual KPI
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric("💰 Total Income", f"{annual_income / 1e5 :,.1f} L")
+with col2:
+    st.metric("💸 Total Expense", f"{annual_expense / 1e5 :,.1f} L")
+with col3:
+    st.metric("💹 Net", f"{annual_net / 1e5 :,.1f} L", delta_color="inverse" if annual_net < 0 else "normal")
+st.markdown("---")
 
+# Months
 for i in range(0, 12, 2):
-    cols = st.columns(2)
-    with cols[0]:
-        render_month_card(i + 1)
-    if i + 1 < 12:
-        with cols[1]:
-            render_month_card(i + 2)
+    col1, col2, col3 = st.columns([1, 0.3, 1])
+    with col1:
+        month_block(i + 1)
+    if i + 2 <= 12:
+        with col3:
+            month_block(i + 2)
+    
+    st.divider()
