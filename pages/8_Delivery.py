@@ -9,7 +9,7 @@ from streamlit.components.v1 import html
 st.set_page_config(layout="centered")
 
 # Authorization
-if st.session_state["authenticated"] == False:
+if ("authenticated" not in st.session_state) or ("authenticated" in st.session_state and st.session_state["authenticated"] == False):
     st.session_state.clear()
     st.rerun()
 else:

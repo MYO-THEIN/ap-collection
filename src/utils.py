@@ -5,9 +5,9 @@ import bcrypt
 
 @st.cache_resource
 def get_postgresql_connection():
-    conn = st.connection(name="postgresql", type="sql")
+    conn = st.connection(name="postgresql_production", type="sql")
     return conn
-
+    
 
 def percentage_change(current, previous):
     return ((current - previous) / previous * 100) if previous else 100

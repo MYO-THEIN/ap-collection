@@ -33,16 +33,19 @@ def hide_sidebar():
         """
         <style>
         [data-testid="stSidebar"] {display: none;}
+        [data-testid="stHeader"] {display: none;}
         </style>
         """,
         unsafe_allow_html=True
     )
+
 
 def show_sidebar():
     st.markdown(
         """
         <style>
         [data-testid="stSidebar"] {display: block;}
+        [data-testid="stHeader"] {display: block;}
         </style>
         """,
         unsafe_allow_html=True
@@ -126,7 +129,7 @@ if st.session_state["authenticated"] == False:
             """
             <style>
             .block-container {
-                max-width: 600px;
+                max-width: 650px;
                 margin: auto;
             }
             </style>
