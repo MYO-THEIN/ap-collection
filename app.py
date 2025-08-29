@@ -160,7 +160,7 @@ if st.session_state["authenticated"] == False:
             unsafe_allow_html=True
         )
 
-        with st.form(key="login_form"):
+        with st.form(key="login_form", width="stretch", height="stretch"):
             username = st.text_input("👤 Username", placeholder="Enter your username")
             password = st.text_input("🔒 Password", type="password", placeholder="Enter your password")
             submitted = st.form_submit_button("🚀 Login")
