@@ -124,19 +124,6 @@ if st.session_state["authenticated"] == False:
     hide_sidebar()
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        # centered
-        st.markdown(
-            """
-            <style>
-            .block-container {
-                max-width: 650px;
-                margin: auto;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
-
         st.markdown(
             """
             <div style="

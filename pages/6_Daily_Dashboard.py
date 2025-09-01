@@ -65,7 +65,7 @@ def kpi_metrics():
         border=True
     )
     col2.metric(
-        "💸 Discount", f"{total_discount:,}",
+        "➖ Discount", f"{total_discount:,}",
         border=True
     )
     

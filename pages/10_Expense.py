@@ -20,7 +20,7 @@ else:
         edit_permission = permissions["Expense"]["edit"]
         delete_permission = permissions["Expense"]["delete"]
 
-st.title("💸 Expense")
+st.title("💸 Expenses")
 
 if "show_form" not in st.session_state:
     st.session_state["show_form"] = False

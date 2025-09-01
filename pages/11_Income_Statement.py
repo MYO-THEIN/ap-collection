@@ -65,7 +65,7 @@ def month_block(month):
 
     col1, col2 = st.columns(2)
     with col1:
-        st.metric("💰 Income", f"{ttl_inc :,.0f}")
+        st.metric("💰 Incomes", f"{ttl_inc :,.0f}")
         if not inc.empty:
             for _, row in inc.iterrows():
                 st.write(f"• {row['payment_type_name']}: **{row['paid_amount'] :,.0f}**")
@@ -73,7 +73,7 @@ def month_block(month):
             st.info("No data")
 
     with col2:
-        st.metric("💸 Expense", f"{ttl_exp :,.0f}")
+        st.metric("💸 Expenses", f"{ttl_exp :,.0f}")
         if not exp.empty:
             for _, row in exp.iterrows():
                 st.write(f"• {row['expense_type_name']}: **{row['amount'] :,.0f}**")
@@ -89,9 +89,9 @@ st.markdown("---")
 # Annual KPI
 col1, col2, col3 = st.columns(3)
 with col1:
-    st.metric("💰 Total Income", f"{annual_income / 1e5 :,.1f} L")
+    st.metric("💰 Total Incomes", f"{annual_income / 1e5 :,.1f} L")
 with col2:
-    st.metric("💸 Total Expense", f"{annual_expense / 1e5 :,.1f} L")
+    st.metric("💸 Total Expenses", f"{annual_expense / 1e5 :,.1f} L")
 with col3:
     st.metric("💹 Net", f"{annual_net / 1e5 :,.1f} L", delta_color="inverse" if annual_net < 0 else "normal")
 st.markdown("---")
