@@ -5,6 +5,55 @@ from src.user import get_users
 
 st.set_page_config(page_title="AP Collections", page_icon="🌴")
 
+# function to manage all styling based on authentication state
+def apply_page_styles():
+    if "authenticated" in st.session_state and st.session_state["authenticated"]:
+        # Logged-in state: show sidebar and header
+        st.markdown(
+            """
+            <style>
+            [data-testid="stSidebar"] {display: block;}
+            [data-testid="stHeader"] {display: block;}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        # Logged-out state: hide sidebar and header, and apply login form styles
+        st.markdown(
+            """
+            <style>
+            /* Hide the default Streamlit sidebar and header */
+            [data-testid="stSidebar"] {display: none;}
+            [data-testid="stHeader"] {display: none;}
+            
+            /* Login form header styling */
+            .login-header {
+                background: linear-gradient(135deg, #e0f7fa, #fce4ec);
+                padding: 20px;
+                border-radius: 20px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+                text-align: center;
+                margin-bottom: 20px; /* Add some space below the header */
+            }
+            .login-header h3 {
+                font-family: 'Trebuchet MS', sans-serif;
+                font-size: 21px;
+                color: #333;
+                margin: 0;
+            }
+            .login-header p {
+                color: #666; 
+                font-size: 14px; 
+                margin-top: 8px;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+apply_page_styles()
+
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 if "role_name" not in st.session_state:
@@ -38,7 +87,6 @@ def hide_sidebar():
         """,
         unsafe_allow_html=True
     )
-
 
 def show_sidebar():
     st.markdown(
@@ -121,33 +169,19 @@ users = get_users()
 
 if st.session_state["authenticated"] == False:
     # Login Form
-    hide_sidebar()
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown(
             """
-            <div style="
-                background: linear-gradient(135deg, #e0f7fa, #fce4ec);
-                padding: 20px;
-                border-radius: 20px;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-                text-align: center;
-            ">
-                <h3 style="
-                    font-family: 'Trebuchet MS', sans-serif;
-                    font-size: 21px;
-                    color: #333;
-                    margin: 0;
-                ">🌴 AP Collections</h3>
-                <p style="color: #666; font-size: 14px; margin-top: 8px;">
-                    Find Your Inner Diva with AP Collections
-                </p>
+            <div class="login-header">
+                <h3>🌴 AP Collections</h3>
+                <p>Find Your Inner Diva with AP Collections</p>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-        with st.form(key="login_form", width="stretch", height="stretch"):
+        with st.form(key="login_form", border=False):
             username = st.text_input("👤 Username", placeholder="Enter your username")
             password = st.text_input("🔒 Password", type="password", placeholder="Enter your password")
             submitted = st.form_submit_button("🚀 Login")
@@ -169,8 +203,9 @@ else:
     logout = st.sidebar.button("🚪 Logout")
     if logout:
         # clear the session state
-        st.session_state.clear()
-        st.rerun()
+        st.session_state.clear() 
+        # redirect to the home page
+        st.markdown('<meta http-equiv="refresh" content="0;URL=/">', unsafe_allow_html=True)
 
     process_list = [p_obj for p_name, p_obj in pages_process.items() if p_name in st.session_state["permissions"].keys()]
     report_list = [p_obj for p_name, p_obj in pages_report.items() if p_name in st.session_state["permissions"].keys()]

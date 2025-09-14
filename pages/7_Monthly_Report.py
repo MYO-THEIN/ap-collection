@@ -40,7 +40,7 @@ if filtered_year and filtered_month:
     
     # current expenses
     expenses_data = get_expenses(from_date, to_date)
-    expenses_data = expenses_data.groupby(["expense_type_id", "expense_type_name"], as_index=False).sum("amount")
+    expenses_data_grp = expenses_data.groupby(["expense_type_id", "expense_type_name"], as_index=False).sum("amount")
 
     # previous month
     prev_month = date(int(filtered_year), int(filtered_month), 1) - timedelta(days=1)
@@ -365,7 +365,7 @@ def expense_insights():
     col1, col2 = st.columns(2)
     
     with col1:
-        df_treemap = expenses_data.copy()
+        df_treemap = expenses_data_grp.copy()
 
         if expenses_data.shape[0] == 1:
             dummy_row = pd.DataFrame([{"expense_type_name": "dummy", "amount": 0}])
@@ -388,8 +388,8 @@ def expense_insights():
         # Radar chart
         fig_radar = go.Figure()
         fig_radar.add_trace(go.Scatterpolar(
-            r=expenses_data["amount"],
-            theta=expenses_data["expense_type_name"],
+            r=expenses_data_grp["amount"],
+            theta=expenses_data_grp["expense_type_name"],
             fill="toself",
             name="Expenses",
             hovertemplate="<b>%{theta}</b><br>%{r:,.0f}<extra></extra>"
@@ -567,7 +567,9 @@ def this_month_vs_last_month():
 def monthly_summary():
     st.markdown("📋 Monthly Summary")
     
-    tab1, tab2, tab3 = st.tabs(["Orders", "Payment Types", "Stock Categories"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Orders", "Payment Types", "Stock Categories", "Expenses"])
+
+    # Orders
     with tab1:
         summary_df = orders_data \
             .drop_duplicates(subset=["order_no"]) \
@@ -604,7 +606,8 @@ def monthly_summary():
             use_container_width=True
         )
 
-    with tab2:
+    # Payment Types
+    with tab2:  
         summary_df = orders_data \
             .drop_duplicates(subset=["order_no"]) \
             .groupby(["date", "payment_type_name"]) \
@@ -631,6 +634,7 @@ def monthly_summary():
             use_container_width=True
         )
 
+    # Stock Categories
     with tab3:
         summary_df = orders_data \
             .groupby(["date", "stock_category_name"]) \
@@ -653,6 +657,33 @@ def monthly_summary():
                 "Date": st.column_config.DateColumn(label="Date", disabled=True, format="MM-DD"),
                 "Stock Category": st.column_config.Column(label="Stock Category", disabled=True),
                 "Quantity": st.column_config.Column(label="Quantity", disabled=True),
+                "Amount": st.column_config.NumberColumn(label="Amount", disabled=True)
+            },
+            hide_index=True, 
+            use_container_width=True
+        )
+
+    # Expenses
+    with tab4:
+        summary_df = expenses_data \
+            .groupby(["date", "expense_type_name"]) \
+            .agg(
+                amount=("amount", "sum")
+            ) \
+            .reset_index()
+
+        summary_df.columns = ["Date", "Expense Type", "Amount"]
+
+        # format the numbers
+        summary_df = summary_df.style.format({
+            "Amount": "{:,.0f}"
+        })
+
+        st.dataframe(
+            data=summary_df,
+            column_config={
+                "Date": st.column_config.DateColumn(label="Date", disabled=True, format="MM-DD"),
+                "Expense Type": st.column_config.Column(label="Expense Type", disabled=True),
                 "Amount": st.column_config.NumberColumn(label="Amount", disabled=True)
             },
             hide_index=True, 

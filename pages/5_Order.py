@@ -143,7 +143,6 @@ with st.spinner("Searching ..."):
                         receipt_html = utils.build_receipt_html(order=row.to_dict(), items=items.to_dict(orient="records"))
                         html(receipt_html, height=0, width=0)
 
-
             with st.expander(label="📋 Items"):
                 items = items.drop(columns=["id", "order_id", "stock_category_id"])
                 items = items.style.format({
