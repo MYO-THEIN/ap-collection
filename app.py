@@ -202,10 +202,9 @@ else:
     st.sidebar.success(f"Welcome, {st.session_state["user_name"]} 👋")
     logout = st.sidebar.button("🚪 Logout")
     if logout:
-        # clear the session state
         st.session_state.clear() 
-        # redirect to the home page
         st.markdown('<meta http-equiv="refresh" content="0;URL=/">', unsafe_allow_html=True)
+        st.rerun()
 
     process_list = [p_obj for p_name, p_obj in pages_process.items() if p_name in st.session_state["permissions"].keys()]
     report_list = [p_obj for p_name, p_obj in pages_report.items() if p_name in st.session_state["permissions"].keys()]
