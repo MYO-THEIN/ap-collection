@@ -137,7 +137,7 @@ def order_form(is_edit: bool, submit_callback=None):
             price = st.number_input("Price", min_value=0, step=1000, format="%d")
             extra = st.number_input("Extra", min_value=0, step=1000, format="%d")
             # amount = st.number_input("Amount", value=(quantity * price) + extra, step=1000, format="%d")
-            amount = (quantity * price) + extra
+            amount = quantity * (price + extra)
 
             add_detail = st.form_submit_button("🛒 Add Item")
             if add_detail:
@@ -194,7 +194,7 @@ def order_form(is_edit: bool, submit_callback=None):
                     df = [i for i in df if i.get("stock_category_name") is not None]
 
                     for i in df:
-                        i["amount"] = (i["quantity"] * i["price"]) + i["extra"]
+                        i["amount"] = i["quantity"] * (i["price"] + i["extra"])
 
                     if is_edit:
                         st.session_state["edit_order_items"] = df
