@@ -40,8 +40,9 @@ def display_order_info_dialog(id: int, date: date, order_no: str, customer_seria
     st.markdown(f"### {customer_serial_no} {customer_name}")
     st.markdown(order_no)
     st.dataframe(items)
-    st.markdown("Measurement")
-    st.markdown(measurement.replace("\n", "<br>"), unsafe_allow_html=True)
+    if measurement.strip() != "":
+        st.markdown("Measurement")
+        st.markdown(measurement.replace("\n", "<br>"), unsafe_allow_html=True)
 
 # CSS for cards
 st.markdown("""
